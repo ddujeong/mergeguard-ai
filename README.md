@@ -28,7 +28,8 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - [x] GitHub PR 메타데이터 조회
 - [x] PR 변경 파일 및 Diff 수집
 - [x] 협업 충돌 위험 분석
-- [ ] LLM 기반 코드 리뷰
+- [x] LLM 기반 코드 리뷰
+- [x] Gemini 응답 JSON 구조화
 - [ ] Frontend UI 구현
 
 ---
@@ -42,6 +43,8 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - Swagger API 테스트 완료
 - 위험 키워드 기반 협업 리스크 분석
 - 위험 파일 탐지 및 위험도 계산
+- Gemini 기반 코드 리뷰 생성
+- 코드 리뷰 결과를 summary / issues / suggestions 구조로 분리
 
 ---
 

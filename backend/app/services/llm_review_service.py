@@ -1,0 +1,70 @@
+import json
+import google.generativeai as genai
+
+from app.core.config import GEMINI_API_KEY
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+model = genai.GenerativeModel("gemini-2.5-flash")
+
+
+def generate_code_review(pr_info: dict, risk_analysis: dict):
+
+    files = pr_info.get("files", [])
+
+    diff_text = ""
+
+    for file in files[:3]:
+
+        diff_text += f"\n\nFILE: {file['filename']}\n"
+
+        patch = file.get("patch", "")
+
+        diff_text += patch[:3000]
+
+    prompt = f"""
+당신은 시니어 코드 리뷰어입니다.
+
+다음 GitHub PR diff를 분석하여:
+
+1. 잠재적인 버그 가능성
+2. 협업 충돌 가능성
+3. 리팩토링 포인트
+4. 테스트 필요 여부
+
+를 리뷰해주세요.
+
+현재 위험도:
+- level: {risk_analysis['risk_level']}
+- score: {risk_analysis['risk_score']}
+
+반드시 한국어로 작성하세요.
+
+반드시 아래 JSON 형식만 반환하세요.
+
+{{
+  "summary": "...",
+  "issues": [
+    "...",
+    "..."
+  ],
+  "suggestions": [
+    "...",
+    "..."
+  ]
+}}
+
+PR Diff:
+{diff_text}
+"""
+
+    response = model.generate_content(prompt)
+
+    text = response.text.strip()
+
+    if text.startswith("```json"):
+        text = text.replace("```json", "").replace("```", "").strip()
+
+    parsed = json.loads(text)
+
+    return parsed
