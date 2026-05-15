@@ -266,46 +266,67 @@ export default function HomePage() {
                 </div>
 
               </div>
+              <div className="grid gap-6 lg:grid-cols-2">
+                <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-black shadow-sm">
+                  <h3 className="mb-4 text-lg font-bold text-red-700">
+                    Issues
+                  </h3>
 
-              <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-black shadow-sm">
-                <h3 className="mb-4 text-lg font-bold text-red-700">
-                  Issues
-                </h3>
-
-                <div className="space-y-4">
-                  {result.llm_review.issues.map((issue, index) => (
-                    <div
-                      key={index}
-                      className="rounded-xl border bg-white p-4"
-                    >
-                      <ReactMarkdown>
-                        {issue}
-                      </ReactMarkdown>
-                    </div>
-                  ))}
+                  <div className="space-y-4">
+                    {result.llm_review.issues.map((issue, index) => (
+                      <div
+                        key={index}
+                        className="rounded-xl border bg-white p-4"
+                      >
+                        <ReactMarkdown>
+                          {issue}
+                        </ReactMarkdown>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 text-black shadow-sm">
-                <h3 className="mb-4 text-lg font-bold text-blue-700">
-                  Suggestions
-                </h3>
+                <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 text-black shadow-sm">
+                  <h3 className="mb-4 text-lg font-bold text-blue-700">
+                    Suggestions
+                  </h3>
 
-                <div className="space-y-4">
-                  {result.llm_review.suggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="rounded-xl border bg-white p-4"
-                    >
-                      <ReactMarkdown>
-                        {suggestion}
-                      </ReactMarkdown>
-                    </div>
-                  ))}
+                  <div className="space-y-4">
+                    {result.llm_review.suggestions.map((suggestion, index) => (
+                      <div
+                        key={index}
+                        className="rounded-xl border bg-white p-4"
+                      >
+                        <ReactMarkdown>
+                          {suggestion}
+                        </ReactMarkdown>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
             </div>
+            {result.merge_guide?.merge_strategy && (
+              <div className="rounded-2xl border border-purple-100 bg-purple-50 p-6 text-black shadow-sm">
+                <h2 className="mb-4 text-xl font-bold text-purple-700">
+                  AI Merge Guide
+                </h2>
+
+                <div className="space-y-3">
+                  {result.merge_guide?.merge_strategy?.map((item, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl border bg-white p-4"
+                    >
+                      <ReactMarkdown>
+                        {item}
+                      </ReactMarkdown>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
         )}

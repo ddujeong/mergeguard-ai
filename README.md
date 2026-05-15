@@ -11,9 +11,9 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 
 ### Frontend
 - Next.js
+- Tailwind CSS
 
-## External API
-
+### External API
 - GitHub REST API
 - Gemini API
 
@@ -21,9 +21,6 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 
 GitHub API Rate Limit 문제를 해결하기 위해
 Personal Access Token 기반 인증 요청을 적용하였다.
-
-### LLM
-- Gemini API
 
 ---
 
@@ -47,6 +44,11 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Issues / Suggestions 구조화
 - Markdown 렌더링 지원
 
+### 5. AI Merge Guide
+- 위험도 기반 Merge 전략 제안
+- 협업 시 주의사항 안내
+- Merge 전 체크 포인트 제공
+
 ---
 ## 현재 진행 상황
 
@@ -62,6 +64,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] Markdown 기반 리뷰 렌더링
 - [x] 열린 PR 기반 충돌 가능성 분석
 - [x] GitHub API 인증 토큰 적용
+- [x] Merge Risk Progress Bar 시각화
+- [x] 위험 키워드 배지 표시
+- [x] AI Merge Guide 생성
 
 ---
 
@@ -81,6 +86,8 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 현재 PR과 열린 PR 간 변경 파일 중복 여부 분석
 - GitHub Personal Access Token 기반 API 인증 적용
 - 겹치는 파일 기준 협업 충돌 가능성 탐지
+- 위험 점수 기반 Progress Bar 표시
+- 감지된 위험 키워드 기반 Badge UI 제공
 
 ---
 
@@ -90,8 +97,10 @@ GitHub PR URL 입력
 → GitHub API 기반 PR 및 Diff 수집
 → 위험 파일 및 변경 규모 분석
 → 협업 위험도 계산
+→ 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성
-→ Frontend UI 출력
+→ AI Merge Guide 생성
+→ Dashboard UI 출력
 
 ---
 
