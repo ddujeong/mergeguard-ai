@@ -60,3 +60,23 @@ def get_pr_info(pr_url: str):
         "total_deletions": total_deletions,
         "files": files
     }
+def get_open_pull_requests(owner: str, repo: str):
+
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls?state=open"
+
+    response = requests.get(url)
+
+    response.raise_for_status()
+
+    return response.json()
+
+
+def get_pull_request_files(owner: str, repo: str, pr_number: int):
+
+    url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/files"
+
+    response = requests.get(url)
+
+    response.raise_for_status()
+
+    return response.json()

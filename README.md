@@ -32,6 +32,7 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - [x] Gemini 응답 JSON 구조화
 - [x] Frontend UI 구현
 - [x] Markdown 기반 리뷰 렌더링
+- [x] 열린 PR과 변경 파일 겹침 분석
 
 ---
 
@@ -48,6 +49,8 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - 코드 리뷰 결과를 summary / issues / suggestions 구조로 분리
 - ReactMarkdown 기반 리뷰 렌더링
 - Next.js 기반 PR 분석 UI 구현
+- 현재 PR과 열린 PR 간 변경 파일 중복 여부 분석
+- 겹치는 파일 기준 협업 충돌 가능성 탐지
 
 ---
 
