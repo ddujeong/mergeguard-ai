@@ -215,44 +215,42 @@ export default function HomePage() {
                 </ReactMarkdown>
               </div>
 
-              <div className="mb-4">
-
-                <h3 className="font-semibold">
+              <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-black shadow-sm">
+                <h3 className="mb-4 text-lg font-bold text-red-700">
                   Issues
                 </h3>
 
-                <ul className="list-disc pl-5">
-
+                <div className="space-y-4">
                   {result.llm_review.issues.map((issue, index) => (
-                    <li key={index}>
+                    <div
+                      key={index}
+                      className="rounded-xl border bg-white p-4"
+                    >
                       <ReactMarkdown>
                         {issue}
                       </ReactMarkdown>
-                    </li>
+                    </div>
                   ))}
-
-                </ul>
-
+                </div>
               </div>
 
-              <div>
-
-                <h3 className="font-semibold">
+              <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 text-black shadow-sm">
+                <h3 className="mb-4 text-lg font-bold text-blue-700">
                   Suggestions
                 </h3>
 
-                <ul className="list-disc pl-5">
-
+                <div className="space-y-4">
                   {result.llm_review.suggestions.map((suggestion, index) => (
-                    <li key={index}>
+                    <div
+                      key={index}
+                      className="rounded-xl border bg-white p-4"
+                    >
                       <ReactMarkdown>
                         {suggestion}
                       </ReactMarkdown>
-                    </li>
+                    </div>
                   ))}
-
-                </ul>
-
+                </div>
               </div>
 
             </div>
