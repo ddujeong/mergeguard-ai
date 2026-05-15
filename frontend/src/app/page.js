@@ -98,7 +98,49 @@ export default function HomePage() {
               </p>
 
             </div>
+            <div className="rounded-lg border bg-white p-5 text-black">
+              <h2 className="mb-3 text-xl font-bold">
+                협업 충돌 분석
+              </h2>
 
+              <p className="mb-3">
+                겹치는 열린 PR 수:{" "}
+                <span className="font-bold">
+                  {result.conflict_analysis.conflict_count}
+                </span>
+              </p>
+
+              {result.conflict_analysis.conflict_count === 0 ? (
+                <p className="text-gray-600">
+                  현재 열린 PR 기준으로 변경 파일이 겹치는 항목은 없습니다.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {result.conflict_analysis.conflict_prs.map((pr) => (
+                    <div
+                      key={pr.pr_number}
+                      className="rounded-lg border bg-gray-50 p-4"
+                    >
+                      <p className="font-semibold">
+                        #{pr.pr_number} {pr.title}
+                      </p>
+
+                      <p className="mt-2 text-sm text-gray-700">
+                        겹치는 파일
+                      </p>
+
+                      <ul className="mt-1 list-disc pl-5">
+                        {pr.overlapping_files.map((file) => (
+                          <li key={file}>
+                            {file}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="rounded-lg border bg-white p-5 text-black">
 
               <h2 className="mb-3 text-xl font-bold">

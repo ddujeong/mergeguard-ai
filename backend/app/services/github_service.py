@@ -1,5 +1,10 @@
 import requests
+from app.core.config import GITHUB_TOKEN
 
+headers = {
+    "Authorization": f"Bearer {GITHUB_TOKEN}",
+    "Accept": "application/vnd.github+json"
+}
 
 def parse_pr_url(pr_url: str):
     parts = pr_url.strip("/").split("/")
@@ -17,10 +22,10 @@ def get_pr_info(pr_url: str):
     pr_api_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}"
     files_api_url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/files"
 
-    pr_response = requests.get(pr_api_url)
+    pr_response = requests.get(pr_api_url, headers=headers)
     pr_response.raise_for_status()
 
-    files_response = requests.get(files_api_url)
+    files_response = requests.get(files_api_url, headers=headers)
     files_response.raise_for_status()
 
     pr_data = pr_response.json()
@@ -64,7 +69,7 @@ def get_open_pull_requests(owner: str, repo: str):
 
     url = f"https://api.github.com/repos/{owner}/{repo}/pulls?state=open"
 
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     response.raise_for_status()
 
@@ -75,7 +80,7 @@ def get_pull_request_files(owner: str, repo: str, pr_number: int):
 
     url = f"https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}/files"
 
-    response = requests.get(url)
+    response = requests.get(url, headers=headers)
 
     response.raise_for_status()
 
