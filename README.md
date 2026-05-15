@@ -30,7 +30,8 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - [x] 협업 충돌 위험 분석
 - [x] LLM 기반 코드 리뷰
 - [x] Gemini 응답 JSON 구조화
-- [ ] Frontend UI 구현
+- [x] Frontend UI 구현
+- [x] Markdown 기반 리뷰 렌더링
 
 ---
 
@@ -45,8 +46,19 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - 위험 파일 탐지 및 위험도 계산
 - Gemini 기반 코드 리뷰 생성
 - 코드 리뷰 결과를 summary / issues / suggestions 구조로 분리
+- ReactMarkdown 기반 리뷰 렌더링
+- Next.js 기반 PR 분석 UI 구현
 
 ---
+
+## 시스템 흐름
+
+GitHub PR URL 입력
+→ GitHub API 기반 PR 및 Diff 수집
+→ 위험 파일 및 변경 규모 분석
+→ 협업 위험도 계산
+→ Gemini 기반 AI 코드 리뷰 생성
+→ Frontend UI 출력
 
 ## 프로젝트 목표
 
