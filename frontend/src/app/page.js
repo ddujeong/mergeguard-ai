@@ -28,23 +28,16 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
 
   const handleAnalyze = async () => {
-
     try {
-
       setLoading(true);
+      setResult(null);
 
       const response = await analyzePrApi(prUrl);
-
       setResult(response.data);
-
     } catch (error) {
-
       console.error(error);
-
       alert("분석 실패");
-
     } finally {
-
       setLoading(false);
     }
   };
@@ -77,9 +70,20 @@ export default function HomePage() {
         </div>
 
         {loading && (
-          <p className="mt-6">
-            분석 중...
-          </p>
+          <div className="mt-8 rounded-2xl border bg-white p-6 text-black shadow-sm">
+            <div className="flex items-center gap-4">
+              <div className="h-6 w-6 animate-spin rounded-full border-4 border-gray-300 border-t-black" />
+
+              <div>
+                <p className="font-bold">
+                  PR을 분석하고 있습니다
+                </p>
+                <p className="mt-1 text-sm text-gray-500">
+                  Diff 수집, 협업 위험 분석, AI 코드 리뷰를 순차적으로 진행 중입니다.
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {result && (
