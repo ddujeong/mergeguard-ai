@@ -19,6 +19,7 @@ def analyze_risk(pr_info: dict) -> dict:
     files = pr_info.get("files", [])
 
     risk_score = 0
+    detected_keywords = set()
     risk_reasons = []
     risky_files = []
 
@@ -43,6 +44,7 @@ def analyze_risk(pr_info: dict) -> dict:
         for keyword in RISK_KEYWORDS:
             if keyword in filename or keyword in patch:
                 matched = True
+                detected_keywords.add(keyword.upper())
                 break
 
         for common_file in COMMON_RISK_FILES:
@@ -75,4 +77,5 @@ def analyze_risk(pr_info: dict) -> dict:
         "risk_score": risk_score,
         "risk_reasons": risk_reasons,
         "risky_files": list(set(risky_files)),
+        "detected_keywords": list(detected_keywords),
     }

@@ -137,7 +137,49 @@ export default function HomePage() {
                   {result.risk_analysis.risk_score}
                 </span>
               </p>
+              <div className="mt-4">
 
+                <div className="mb-2 flex justify-between text-sm">
+                  <span>Merge Risk</span>
+                  <span>{result.risk_analysis.risk_score}%</span>
+                </div>
+
+                <div className="h-3 overflow-hidden rounded-full bg-gray-200">
+
+                  <div
+                    className={
+                      result.risk_analysis.risk_level === "HIGH"
+                        ? "h-full bg-red-500"
+                        : result.risk_analysis.risk_level === "MEDIUM"
+                          ? "h-full bg-yellow-500"
+                          : "h-full bg-green-500"
+                    }
+                    style={{
+                      width: `${result.risk_analysis.risk_score}%`,
+                    }}
+                  />
+
+                </div>
+
+              </div>
+              {result.risk_analysis.detected_keywords?.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="mb-2 font-semibold">
+                    감지된 위험 키워드
+                  </h3>
+
+                  <div className="flex flex-wrap gap-2">
+                    {result.risk_analysis.detected_keywords.map((keyword) => (
+                      <span
+                        key={keyword}
+                        className="rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700"
+                      >
+                        {keyword}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="mt-4">
 
                 <h3 className="mb-2 font-semibold">
@@ -203,7 +245,7 @@ export default function HomePage() {
                 </div>
               )}
             </div>
-            <div className="rounded-lg border bg-white p-5 text-black">
+            <div className="space-y-6 rounded-lg border bg-white p-5 text-black">
 
               <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
 
