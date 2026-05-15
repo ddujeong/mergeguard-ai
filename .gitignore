@@ -1,0 +1,30 @@
+# Python
+
+backend/venv/
+backend/.pytest_cache/
+backend/.env
+__pycache__/
+*.pyc
+
+# FastAPI
+
+backend/.idea/
+
+# Node / Next.js
+
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+
+# Mac
+
+.DS_Store
+
+# VSCode
+
+.vscode/
+
+# Logs
+
+*.log
