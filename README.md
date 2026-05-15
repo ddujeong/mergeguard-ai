@@ -19,3 +19,11 @@ GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 
 - [ ] Collaboration risk analysis
 - [ ] LLM code review
 - [ ] Frontend UI
+
+## Implemented Features
+
+- GitHub PR URL parsing
+- GitHub Pull Request metadata collection
+- PR changed file analysis
+- Diff patch collection
+- Swagger API testing
