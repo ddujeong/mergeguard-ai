@@ -88,7 +88,7 @@ export default function HomePage() {
 
         {result && (
 
-          <div className="mt-8 space-y-6">
+          <div className="mt-8 space-y-8">
             <div className="grid gap-4 md:grid-cols-4">
 
               <div className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -205,14 +205,24 @@ export default function HomePage() {
             </div>
             <div className="rounded-lg border bg-white p-5 text-black">
 
-              <h2 className="mb-3 text-xl font-bold">
-                AI 코드 리뷰
-              </h2>
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
 
-              <div className="mb-4 prose max-w-none">
-                <ReactMarkdown>
-                  {result.llm_review.summary}
-                </ReactMarkdown>
+                <div className="mb-4 flex items-center gap-2">
+
+                  <div className="h-3 w-3 rounded-full bg-black" />
+
+                  <h2 className="text-xl font-bold">
+                    AI 코드 리뷰 요약
+                  </h2>
+
+                </div>
+
+                <div className="prose max-w-none text-black">
+                  <ReactMarkdown>
+                    {result.llm_review.summary}
+                  </ReactMarkdown>
+                </div>
+
               </div>
 
               <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-black shadow-sm">
