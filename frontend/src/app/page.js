@@ -6,6 +6,19 @@ import { analyzePrApi } from "@/api/reviewApi";
 
 import ReactMarkdown from "react-markdown";
 
+const getRiskBadgeStyle = (level) => {
+
+  if (level === "HIGH") {
+    return "bg-red-100 text-red-700 border-red-300";
+  }
+
+  if (level === "MEDIUM") {
+    return "bg-yellow-100 text-yellow-700 border-yellow-300";
+  }
+
+  return "bg-green-100 text-green-700 border-green-300";
+};
+
 export default function HomePage() {
 
   const [prUrl, setPrUrl] = useState("");
@@ -72,30 +85,75 @@ export default function HomePage() {
         {result && (
 
           <div className="mt-8 space-y-6">
+            <div className="grid gap-4 md:grid-cols-4">
 
-            <div className="rounded-lg border bg-white p-5 text-black">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Repository</p>
+                <p className="mt-1 font-bold">{result.repository}</p>
+              </div>
 
-              <h2 className="mb-3 text-xl font-bold">
-                위험도 분석
-              </h2>
+              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Author</p>
+                <p className="mt-1 font-bold">{result.author}</p>
+              </div>
 
-              <p
-                className={
-                  result.risk_analysis.risk_level === "HIGH"
-                    ? "text-red-600 font-bold"
-                    : result.risk_analysis.risk_level === "MEDIUM"
-                      ? "text-yellow-600 font-bold"
-                      : "text-green-600 font-bold"
-                }
-              >
-                위험도: {result.risk_analysis.risk_level}
-              </p>
+              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Changed Files</p>
+                <p className="mt-1 text-2xl font-bold">{result.changed_files}</p>
+              </div>
 
-              <p>
-                점수:
+              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+                <p className="text-sm text-gray-500">Commits</p>
+                <p className="mt-1 text-2xl font-bold">{result.commits}</p>
+              </div>
+
+            </div>
+            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+
+              <div className="mb-4 flex items-center justify-between">
+
+                <h2 className="text-xl font-bold">
+                  위험도 분석
+                </h2>
+
+                <span
+                  className={`rounded-full border px-4 py-1 text-sm font-semibold ${getRiskBadgeStyle(
+                    result.risk_analysis.risk_level
+                  )}`}
+                >
+                  {result.risk_analysis.risk_level}
+                </span>
+
+              </div>
+
+              <p className="mb-2 text-lg">
+                위험 점수:
                 {" "}
-                {result.risk_analysis.risk_score}
+                <span className="font-bold">
+                  {result.risk_analysis.risk_score}
+                </span>
               </p>
+
+              <div className="mt-4">
+
+                <h3 className="mb-2 font-semibold">
+                  위험 파일
+                </h3>
+
+                <div className="flex flex-wrap gap-2">
+
+                  {result.risk_analysis.risky_files.map((file) => (
+                    <span
+                      key={file}
+                      className="rounded-lg bg-gray-100 px-3 py-1 text-sm"
+                    >
+                      {file}
+                    </span>
+                  ))}
+
+                </div>
+
+              </div>
 
             </div>
             <div className="rounded-lg border bg-white p-5 text-black">
