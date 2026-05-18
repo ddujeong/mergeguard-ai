@@ -1,4 +1,4 @@
-def build_call_chains(call_relations):
+def build_deep_call_chains(call_relations):
 
     graph = {}
 
@@ -12,31 +12,46 @@ def build_call_chains(call_relations):
 
         graph[caller].append(callee)
 
-    chains = []
-
     visited = set()
 
-    def dfs(node, path):
+    chains = []
 
-        if node in visited:
+    def dfs(method, path, depth):
+
+        if depth > 4:
             return
 
-        visited.add(node)
+        if method in visited:
+            return
 
-        path.append(node)
+        visited.add(method)
 
-        if node not in graph:
+        next_calls = graph.get(method, [])
 
-            chains.append(path[:])
+        if not next_calls:
 
-        else:
+            chains.append(path.copy())
 
-            for next_node in graph[node]:
+        for next_method in next_calls:
 
-                dfs(next_node, path[:])
+            path.append(next_method)
 
-    for caller in graph.keys():
+            dfs(
+                next_method,
+                path,
+                depth + 1
+            )
 
-        dfs(caller, [])
+            path.pop()
+
+    for start_method in graph.keys():
+
+        visited.clear()
+
+        dfs(
+            start_method,
+            [start_method],
+            0
+        )
 
     return chains

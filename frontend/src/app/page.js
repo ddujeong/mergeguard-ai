@@ -34,7 +34,22 @@ export default function HomePage() {
     result?.merge_guide?.merge_strategy?.flatMap((item) =>
       item.split(/\n\d+\.\s/g).filter(Boolean)
     ) || [];
+  const groupedImpactAnalysis =
+    result?.deep_impact_analysis?.reduce((acc, chain) => {
+      const root = chain[0];
 
+      if (!root) return acc;
+
+      if (!acc[root]) {
+        acc[root] = new Set();
+      }
+
+      chain.slice(1).forEach((method) => {
+        acc[root].add(method);
+      });
+
+      return acc;
+    }, {}) || {};
   const handleAnalyze = async () => {
     try {
       setLoading(true);
@@ -536,48 +551,36 @@ export default function HomePage() {
                 </div>
               </section>
             )}
-            {result.impact_analysis?.length > 0 && (
+            {Object.keys(groupedImpactAnalysis).length > 0 && (
               <section className="rounded-2xl border bg-white p-5 shadow-sm">
-
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-xl font-bold">
-                    영향 범위 분석
-                  </h2>
-
+                  <h2 className="text-xl font-bold">영향 범위 분석</h2>
                   <span className="rounded-full bg-cyan-100 px-3 py-1 text-sm font-semibold text-cyan-700">
-                    IMPACT
+                    IMPACT TREE
                   </span>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  {Object.entries(groupedImpactAnalysis).map(([root, children]) => (
+                    <div key={root} className="rounded-xl border bg-gray-50 p-4">
+                      <div className="font-bold text-cyan-700">
+                        ● {root}()
+                      </div>
 
-                  {result.impact_analysis.map((chain, index) => (
-
-                    <div
-                      key={index}
-                      className="rounded-xl border bg-gray-50 p-4"
-                    >
-
-                      <p className="font-semibold text-cyan-700">
-
-                        {chain.map((item, idx) => (
-                          <span key={idx}>
-                            {idx > 0 && " → "}
-                            {item}()
-                          </span>
+                      <div className="mt-2 space-y-1 pl-6">
+                        {[...children].map((child) => (
+                          <div key={child} className="font-semibold text-cyan-700">
+                            └─ {child}()
+                          </div>
                         ))}
-
-                      </p>
-
+                      </div>
                     </div>
                   ))}
-
                 </div>
 
                 <p className="mt-4 text-sm text-cyan-700">
-                  변경 메서드의 호출 흐름을 기반으로 영향 범위를 분석합니다.
+                  변경 메서드의 호출 체인을 기반으로 연쇄 영향 범위를 분석합니다.
                 </p>
-
               </section>
             )}
             {result.ast_analysis?.undefined_calls?.length > 0 && (

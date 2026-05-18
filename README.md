@@ -74,8 +74,10 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Tree-sitter 기반 Java AST 분석
 - 변경 클래스 및 메서드 추출
 - 메서드 호출 관계 분석
+- 영향 범위(Call Chain) 분석
 - 보안 민감 메서드 탐지
 - AST 기반 메서드 위험도 계산
+- 영향 범위 트리(Impact Tree) 시각화
 
 ---
 ## 현재 진행 상황
@@ -100,6 +102,10 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] 로컬 git diff 기반 사전 위험 분석 기능 추가
 - [x] Tree-sitter 기반 AST 구조 분석
 - [x] 메서드 호출 관계 분석
+- [x] AST 기반 메서드 위험도 계산
+- [x] 영향 범위(Call Chain) 분석
+- [x] Impact Tree UI 시각화
+- [x] 보안 민감 메서드 탐지
 - [x] AST 기반 메서드 위험도 계산
 
 ---
@@ -136,6 +142,11 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 보안 민감 메서드 탐지
 - 메서드 단위 위험도 계산
 - AST 기반 추가 위험 점수 반영
+- 메서드 호출 체인(Call Chain) 분석
+- 영향 범위(Impact Chain) 분석
+- Impact Tree 기반 호출 흐름 시각화
+- 보안 민감 메서드 자동 탐지
+- AST 기반 추가 위험 점수 반영
 
 ---
 
@@ -143,7 +154,7 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 
 GitHub PR URL 또는 로컬 diff(.patch) 파일 입력
 → GitHub API 및 diff parser 기반 변경 사항 수집
-→ 위험 파일 / AST 구조 / 변경 규모 분석
+→ 위험 파일 / AST 구조 / 호출 체인 / 변경 규모 분석
 → 협업 위험도 계산
 → 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성
@@ -199,8 +210,10 @@ MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하
 - 공통 변경 파일
 - 위험 키워드 기반 영향 범위
 - Merge 이전 사전 위험 분석
-- Tree-sitter 기반 AST 구조 분석을 통한
-  클래스 및 메서드 단위 영향 범위 분석
+- Tree-sitter 기반 AST 구조 분석을 통한 클래스 및 메서드 단위 영향 범위 분석
+- 메서드 호출 관계 기반 영향 범위 분석
+- AST 기반 보안 민감 메서드 탐지
+- Impact Tree 기반 호출 흐름 시각화
 
 등 협업 관점의 위험 요소를 함께 분석한다.
 
@@ -221,12 +234,24 @@ PR 생성 이전 단계에서도 위험도를 점검할 수 있도록 설계하�
   - JwtTokenProvider.java
   - AuthService.java
 
+MergeGuard AI는 두 PR이 공통으로 수정한 `JwtTokenProvider.java`를 감지하고,
+협업 충돌 가능성이 있는 PR로 분류하였다.
+
 - PR #3: AST 호출 분석 테스트
   - AuthService.java
   - validateInput() 호출 추가
 
-MergeGuard AI는 두 PR이 공통으로 수정한 `JwtTokenProvider.java`를 감지하고,
-협업 충돌 가능성이 있는 PR로 분류하였다.
-
 MergeGuard AI는 `login()`에서 `validateInput()`을 호출하는 관계를 분석하고,
 보안 민감 메서드 및 메서드 단위 위험도를 함께 탐지하였다.
+
+- PR #4: 인증 흐름 호출 체인 테스트
+  - login()
+  - validateInput()
+  - checkPassword()
+  - issueToken()
+  - findUser()
+
+MergeGuard AI는 login() 메서드를 기준으로
+호출되는 메서드 체인을 분석하고,
+영향 범위 및 보안 민감 메서드를 함께 탐지하였다.
+
