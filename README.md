@@ -25,6 +25,10 @@ MergeGuard AI는 GitHub PR 및 로컬 diff 기반 변경 사항과
 ### Dev Tools
 - Swagger UI
 
+### AI / LLM
+- Gemini 3 Flash Preview
+- Gemini 3.1 Flash Lite (Fallback)
+
 ## 인증 방식
 
 GitHub API Rate Limit 문제를 해결하기 위해
@@ -61,6 +65,13 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 로컬 git diff 및 patch 파일 기반 사전 위험 분석 지원
 - PR 생성 전 위험도 분석
 - Merge 이전 협업 위험 사전 탐지
+- 로컬 git diff 및 patch(.patch/.diff) 파일 기반 사전 위험 분석 지원
+
+### 7. AI Merge Strategy
+- 위험도 기반 Merge 전략 추천
+- Rebase 필요 여부 판단
+- 수동 리뷰 필요 여부 분석
+- 협업 우선순위 및 체크 포인트 제공
 
 ---
 ## 현재 진행 상황
@@ -109,6 +120,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - AI Merge 전략 생성
 - 로컬 git diff 기반 사전 위험 분석 지원
 - PR 생성 전 Merge 위험도 분석 기능 제공
+- 위험도 기반 Merge 전략 추천
+- Rebase 필요 여부 자동 분석
+- AUTH/DB 변경 기반 협업 우선순위 분석
 
 ---
 

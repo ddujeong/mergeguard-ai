@@ -6,7 +6,13 @@ from app.core.config import GEMINI_API_KEY
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+primary_model = genai.GenerativeModel(
+    "gemini-3-flash-preview"
+)
+
+fallback_model = genai.GenerativeModel(
+    "gemini-3.1-flash-lite"
+)
 
 
 def generate_code_review(pr_info: dict, risk_analysis: dict):
@@ -59,7 +65,12 @@ PR Diff:
 {diff_text}
 """
 
-    response = model.generate_content(prompt)
+    try:
+        response = primary_model.generate_content(prompt)
+
+    except Exception:
+        print("2.5-flash 호출 실패 → fallback 사용")
+        response = fallback_model.generate_content(prompt)
 
     text = response.text.strip()
 

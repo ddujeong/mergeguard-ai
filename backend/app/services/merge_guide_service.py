@@ -6,7 +6,13 @@ from app.core.config import GEMINI_API_KEY
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+primary_model = genai.GenerativeModel(
+    "gemini-3-flash-preview"
+)
+
+fallback_model = genai.GenerativeModel(
+    "gemini-3.1-flash-lite"
+)
 
 
 def generate_merge_guide(pr_info, risk_analysis, conflict_analysis):
@@ -30,6 +36,7 @@ def generate_merge_guide(pr_info, risk_analysis, conflict_analysis):
 감지 키워드:
 {risk_analysis['detected_keywords']}
 
+반드시 한국어로 작성하세요.
 반드시 아래 JSON 형식으로만 응답하세요.
 
 {{
@@ -41,13 +48,31 @@ def generate_merge_guide(pr_info, risk_analysis, conflict_analysis):
 }}
 """
 
-    response = model.generate_content(prompt)
+    try:
+
+        response = primary_model.generate_content(prompt)
+
+    except Exception:
+
+        print("2.5-flash quota 초과 → fallback 사용")
+
+        response = fallback_model.generate_content(prompt)
 
     text = response.text.strip()
 
     if text.startswith("```json"):
         text = text.replace("```json", "").replace("```", "").strip()
 
-    parsed = json.loads(text)
+    try:
+
+        parsed = json.loads(text)
+
+    except Exception:
+
+        parsed = {
+            "merge_strategy": [
+                text
+            ]
+        }
 
     return parsed

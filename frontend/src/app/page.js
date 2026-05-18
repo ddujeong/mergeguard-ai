@@ -30,6 +30,11 @@ export default function HomePage() {
   const [mode, setMode] = useState("pr");
   const [diffText, setDiffText] = useState("");
 
+  const mergeGuideItems =
+    result?.merge_guide?.merge_strategy?.flatMap((item) =>
+      item.split(/\n\d+\.\s/g).filter(Boolean)
+    ) || [];
+
   const handleAnalyze = async () => {
     try {
       setLoading(true);
@@ -495,7 +500,7 @@ export default function HomePage() {
                 </h2>
 
                 <div className="space-y-3">
-                  {result.merge_guide?.merge_strategy?.map((item, index) => (
+                  {mergeGuideItems.map((item, index) => (
                     <div
                       key={index}
                       className="rounded-xl border bg-white p-4"

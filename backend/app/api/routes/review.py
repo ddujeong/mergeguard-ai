@@ -4,10 +4,10 @@ from app.services.github_service import get_pr_info
 from app.services.risk_analyzer import analyze_risk
 from app.services.llm_review_service import generate_code_review
 from app.services.conflict_analyzer import analyze_conflicts
-from app.services.merge_guide_service import generate_merge_guide
 from app.services.complexity_analyzer import analyze_complexity
 from app.schemas.diff_request import DiffAnalyzeRequest
 from app.services.diff_parser import parse_diff_text
+from app.services.merge_strategy_service import generate_merge_strategy
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -27,11 +27,10 @@ def analyze_pr(payload: dict):
         pr_url,
         pr_info["files"]
     )
-    merge_guide = generate_merge_guide(
-        pr_info,
+    merge_guide = generate_merge_strategy(
         risk_result,
         conflict_result
-)
+    )
     complexity_result = analyze_complexity(
     pr_info,
     risk_result
@@ -72,8 +71,7 @@ def analyze_diff(request: DiffAnalyzeRequest):
         risk_result
     )
 
-    merge_guide = generate_merge_guide(
-        pr_info,
+    merge_guide = generate_merge_strategy(
         risk_result,
         {
             "conflict_count": 0,
