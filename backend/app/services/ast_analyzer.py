@@ -19,6 +19,8 @@ def extract_java_structure(code: str):
 
     methods = []
 
+    method_calls = []
+
     stack = [root]
 
     while stack:
@@ -44,12 +46,20 @@ def extract_java_structure(code: str):
                 methods.append(
                     name_node.text.decode("utf-8")
                 )
+        if node.type == "method_invocation":
 
+            name_node = node.child_by_field_name("name")
+
+            if name_node:
+                method_calls.append(
+                    name_node.text.decode("utf-8")
+                )
         stack.extend(node.children)
 
     return {
         "classes": list(set(classes)),
-        "methods": list(set(methods))
+        "methods": list(set(methods)),
+        "method_calls": list(set(method_calls))
     }
 
 
@@ -59,6 +69,8 @@ def analyze_changed_structure(files: list):
 
     all_methods = []
 
+    all_method_calls = []
+    
     for file in files:
 
         filename = file.get("filename", "")
@@ -80,8 +92,13 @@ def analyze_changed_structure(files: list):
         all_methods.extend(
             result["methods"]
         )
+        
+        all_method_calls.extend(
+            result["method_calls"]
+        )
 
     return {
         "classes": list(set(all_classes)),
-        "methods": list(set(all_methods))
+        "methods": list(set(all_methods)),
+        "method_calls": list(set(all_method_calls))
     }
