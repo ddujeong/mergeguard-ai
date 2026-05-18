@@ -45,8 +45,6 @@ export default function HomePage() {
     }
   };
   const handleAnalyzeDiff = async () => {
-    console.log("diff button clicked");
-    console.log("diffText length:", diffText.length);
     try {
 
       setLoading(true);
@@ -54,7 +52,6 @@ export default function HomePage() {
       setResult(null);
 
       const response = await analyzeDiffApi(diffText);
-      console.log("diff response:", response);
 
       setResult(response);
 
@@ -69,6 +66,15 @@ export default function HomePage() {
       setLoading(false);
 
     }
+  };
+  const handleDiffFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    const text = await file.text();
+
+    setDiffText(text);
   };
 
   return (
@@ -129,11 +135,26 @@ export default function HomePage() {
         {mode === "diff" && (
 
           <div className="space-y-4">
+            <div className="rounded-2xl border border-dashed border-gray-300 bg-gray-50 p-5">
+              <p className="mb-2 font-semibold">
+                Diff 파일 업로드
+              </p>
 
+              <p className="mb-3 text-sm text-gray-500">
+                터미널에서 <code className="rounded bg-white px-1">git diff &gt; changes.patch</code> 실행 후 생성된 파일을 업로드할 수 있습니다.
+              </p>
+
+              <input
+                type="file"
+                accept=".diff,.patch,.txt"
+                onChange={handleDiffFileUpload}
+                className="block w-full text-sm text-gray-700"
+              />
+            </div>
             <textarea
               value={diffText}
               onChange={(e) => setDiffText(e.target.value)}
-              placeholder="git diff 결과를 붙여넣으세요"
+              placeholder="git diff 결과를 붙여넣거나, 위에서 .patch/.diff 파일을 업로드하세요."
               className="h-72 w-full rounded-lg border p-4 font-mono text-sm text-black"
             />
 
@@ -141,7 +162,7 @@ export default function HomePage() {
               onClick={handleAnalyzeDiff}
               className="rounded-lg bg-indigo-600 px-6 py-3 text-white"
             >
-              로컬 Diff 분석
+              로컬 Diff 사전 분석
             </button>
 
           </div>
