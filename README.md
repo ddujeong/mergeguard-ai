@@ -73,7 +73,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 ### 7. AST 기반 코드 구조 분석
 - Tree-sitter 기반 Java AST 분석
 - 변경 클래스 및 메서드 추출
-- 함수 단위 영향 범위 분석
+- 메서드 호출 관계 분석
+- 보안 민감 메서드 탐지
+- AST 기반 메서드 위험도 계산
 
 ---
 ## 현재 진행 상황
@@ -92,10 +94,13 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] GitHub API 인증 토큰 적용
 - [x] Merge Risk Progress Bar 시각화
 - [x] 위험 키워드 배지 표시
-- [x] AI Merge Guide 생성
+- [x] AI Merge Strategy 생성
 - [x] 협업 위험 Alert UI 추가
 - [x] Diff Preview Dashboard 구현
 - [x] 로컬 git diff 기반 사전 위험 분석 기능 추가
+- [x] Tree-sitter 기반 AST 구조 분석
+- [x] 메서드 호출 관계 분석
+- [x] AST 기반 메서드 위험도 계산
 
 ---
 
@@ -127,6 +132,10 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - AUTH/DB 변경 기반 협업 우선순위 분석
 - Tree-sitter 기반 AST 구조 분석
 - 변경 클래스 및 메서드 단위 영향 범위 추출
+- Tree-sitter 기반 메서드 호출 관계 분석
+- 보안 민감 메서드 탐지
+- 메서드 단위 위험도 계산
+- AST 기반 추가 위험 점수 반영
 
 ---
 
@@ -138,7 +147,7 @@ GitHub PR URL 또는 로컬 diff(.patch) 파일 입력
 → 협업 위험도 계산
 → 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성
-→ AI Merge Guide 생성
+→ AI Merge Strategy 생성
 → Dashboard UI 출력
 
 ---
@@ -212,5 +221,12 @@ PR 생성 이전 단계에서도 위험도를 점검할 수 있도록 설계하�
   - JwtTokenProvider.java
   - AuthService.java
 
+- PR #3: AST 호출 분석 테스트
+  - AuthService.java
+  - validateInput() 호출 추가
+
 MergeGuard AI는 두 PR이 공통으로 수정한 `JwtTokenProvider.java`를 감지하고,
 협업 충돌 가능성이 있는 PR로 분류하였다.
+
+MergeGuard AI는 `login()`에서 `validateInput()`을 호출하는 관계를 분석하고,
+보안 민감 메서드 및 메서드 단위 위험도를 함께 탐지하였다.

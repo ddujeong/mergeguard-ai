@@ -10,6 +10,7 @@ from app.services.diff_parser import parse_diff_text
 from app.services.merge_strategy_service import generate_merge_strategy
 from app.services.ast_analyzer import analyze_changed_structure
 from app.services.ast_risk_analyzer import calculate_ast_risk
+from app.services.impact_chain_analyzer import build_call_chains
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -35,6 +36,9 @@ def analyze_pr(payload: dict):
     ast_result = analyze_changed_structure(
         pr_info["files"]
     )
+    impact_chains = build_call_chains(
+        ast_result["call_relations"]
+    )
     ast_risk = calculate_ast_risk(
         ast_result.get("method_risks", [])
     )
@@ -59,7 +63,8 @@ def analyze_pr(payload: dict):
             "merge_guide": merge_guide,
             "complexity_analysis": complexity_result,
             "ast_analysis": ast_result,
-            "ast_risk_analysis": ast_risk
+            "ast_risk_analysis": ast_risk,
+            "impact_analysis": impact_chains
         }
     }
 @router.post("/analyze-diff")
@@ -82,6 +87,11 @@ def analyze_diff(request: DiffAnalyzeRequest):
         risk_result
     )
     ast_result = analyze_changed_structure(files)
+    
+    impact_chains = build_call_chains(
+        ast_result["call_relations"]
+    )
+    
     ast_risk = calculate_ast_risk(
         ast_result.get("method_risks", [])
     )
@@ -116,6 +126,7 @@ def analyze_diff(request: DiffAnalyzeRequest):
                 "conflict_count": 0,
                 "conflict_prs": []
             },
-            "ast_risk_analysis": ast_risk
+            "ast_risk_analysis": ast_risk,
+            "impact_analysis": impact_chains
         }
     }
