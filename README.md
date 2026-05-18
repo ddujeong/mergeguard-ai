@@ -67,6 +67,8 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] Merge Risk Progress Bar 시각화
 - [x] 위험 키워드 배지 표시
 - [x] AI Merge Guide 생성
+- [x] 협업 위험 Alert UI 추가
+- [x] Diff Preview Dashboard 구현
 
 ---
 
@@ -88,6 +90,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 겹치는 파일 기준 협업 충돌 가능성 탐지
 - 위험 점수 기반 Progress Bar 표시
 - 감지된 위험 키워드 기반 Badge UI 제공
+- 변경 파일 기반 Diff Preview Dashboard 제공
+- 협업 위험 Alert 메시지 제공
+- AI Merge 전략 생성
 
 ---
 
@@ -118,3 +123,36 @@ MergeGuard AI는 GitHub PR의 변경 사항과 협업 상태를 함께 분석하
 - Merge 가이드 제공
 
 기능을 목표로 한다.
+
+## 프로젝트 배경
+
+최근 AI 기반 코드 생성 도구와 바이브 코딩 환경의 발전으로
+코드 작성 자체의 진입장벽은 크게 낮아졌다.
+
+하지만 실제 협업 환경에서는:
+
+- PR 충돌
+- 브랜치 최신화 누락
+- 영향 범위 파악 어려움
+- Merge 안정성 문제
+
+등의 협업 이슈는 여전히 개발자의 부담으로 남아있다.
+
+MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하고,
+안전한 Merge를 지원하기 위해 개발되었다.
+
+## 테스트 시나리오
+
+테스트용 Spring Boot 레포지토리에서 두 개의 PR을 생성하여
+동일 파일 수정으로 인한 협업 충돌 상황을 재현하였다.
+
+- PR #1: JWT 인증 로직 개선
+  - JwtTokenProvider.java
+  - SecurityConfig.java
+
+- PR #2: 로그인 검증 로직 추가
+  - JwtTokenProvider.java
+  - AuthService.java
+
+MergeGuard AI는 두 PR이 공통으로 수정한 `JwtTokenProvider.java`를 감지하고,
+협업 충돌 가능성이 있는 PR로 분류하였다.

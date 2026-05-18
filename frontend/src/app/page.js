@@ -43,9 +43,9 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 p-10 text-black">
+    <main className="min-h-screen bg-gray-100 px-6 p-10 text-black">
 
-      <div className="mx-auto max-w-4xl rounded-xl bg-white p-8 shadow">
+      <div className="w-full rounded-xl bg-white p-8 shadow">
 
         <h1 className="mb-6 text-3xl font-bold">
           MergeGuard AI
@@ -112,6 +112,37 @@ export default function HomePage() {
               </div>
 
             </div>
+            {result.risk_analysis.detected_keywords?.length > 0 && (
+
+              <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-orange-800 shadow-sm">
+
+                <div className="flex items-start gap-3">
+
+                  <div className="mt-1 text-xl">
+                    ⚠️
+                  </div>
+
+                  <div>
+
+                    <h2 className="mb-2 text-lg font-bold">
+                      협업 주의 알림
+                    </h2>
+
+                    <p className="leading-relaxed">
+                      현재 PR은{" "}
+                      <span className="font-semibold">
+                        {result.risk_analysis.detected_keywords.join(", ")}
+                      </span>
+                      {" "}관련 변경을 포함하고 있습니다.
+                      팀원 작업 및 최신 브랜치 상태를 확인한 뒤 merge 하는 것을 권장합니다.
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+            )}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
 
               <div className="mb-4 flex items-center justify-between">
@@ -140,7 +171,7 @@ export default function HomePage() {
               <div className="mt-4">
 
                 <div className="mb-2 flex justify-between text-sm">
-                  <span>Merge Risk</span>
+                  <span>병합 위험도</span>
                   <span>{result.risk_analysis.risk_score}%</span>
                 </div>
 
@@ -197,6 +228,52 @@ export default function HomePage() {
                     </span>
                   ))}
 
+                </div>
+
+              </div>
+
+            </div>
+            <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 text-black shadow-sm">
+
+              <div className="mb-4 flex items-center justify-between">
+
+                <h2 className="text-xl font-bold text-indigo-700">
+                  PR 복잡도 분석
+                </h2>
+
+                <span className="rounded-full bg-white px-4 py-1 text-sm font-bold">
+                  {result.complexity_analysis.complexity_level}
+                </span>
+
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+
+                <div className="rounded-xl bg-white p-4">
+                  <p className="text-sm text-gray-500">
+                    복잡도 점수
+                  </p>
+                  <p className="mt-2 text-2xl font-bold">
+                    {result.complexity_analysis.complexity_score}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-white p-4">
+                  <p className="text-sm text-gray-500">
+                    추가된 코드
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-green-600">
+                    +{result.complexity_analysis.total_additions}
+                  </p>
+                </div>
+
+                <div className="rounded-xl bg-white p-4">
+                  <p className="text-sm text-gray-500">
+                    삭제 된 코드
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-red-600">
+                    -{result.complexity_analysis.total_deletions}
+                  </p>
                 </div>
 
               </div>
@@ -269,7 +346,7 @@ export default function HomePage() {
               <div className="grid gap-6 lg:grid-cols-2">
                 <div className="rounded-2xl border border-red-100 bg-red-50 p-6 text-black shadow-sm">
                   <h3 className="mb-4 text-lg font-bold text-red-700">
-                    Issues
+                    문제 가능성
                   </h3>
 
                   <div className="space-y-4">
@@ -288,7 +365,7 @@ export default function HomePage() {
 
                 <div className="rounded-2xl border border-blue-100 bg-blue-50 p-6 text-black shadow-sm">
                   <h3 className="mb-4 text-lg font-bold text-blue-700">
-                    Suggestions
+                    개선 제안
                   </h3>
 
                   <div className="space-y-4">
@@ -310,7 +387,7 @@ export default function HomePage() {
             {result.merge_guide?.merge_strategy && (
               <div className="rounded-2xl border border-purple-100 bg-purple-50 p-6 text-black shadow-sm">
                 <h2 className="mb-4 text-xl font-bold text-purple-700">
-                  AI Merge Guide
+                  AI 병합 가이드
                 </h2>
 
                 <div className="space-y-3">

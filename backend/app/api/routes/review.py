@@ -5,6 +5,7 @@ from app.services.risk_analyzer import analyze_risk
 from app.services.llm_review_service import generate_code_review
 from app.services.conflict_analyzer import analyze_conflicts
 from app.services.merge_guide_service import generate_merge_guide
+from app.services.complexity_analyzer import analyze_complexity
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -29,6 +30,11 @@ def analyze_pr(payload: dict):
         risk_result,
         conflict_result
 )
+    complexity_result = analyze_complexity(
+    pr_info,
+    risk_result
+)
+    complexity_result = analyze_complexity(pr_info, risk_result)
     return {
         "success": True,
         "data": {
@@ -36,6 +42,7 @@ def analyze_pr(payload: dict):
             "risk_analysis": risk_result,
             "conflict_analysis": conflict_result,
             "llm_review": llm_review,
-            "merge_guide": merge_guide
+            "merge_guide": merge_guide,
+            "complexity_analysis": complexity_result
         }
     }
