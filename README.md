@@ -80,6 +80,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 영향 범위 트리(Impact Tree) 시각화
 - GitHub PR 변경 파일의 전체 Java 소스 기반 AST 분석
 - 클래스/메서드 단위 Call Graph 분석
+- 클래스 간 메서드 호출 흐름 분석
+- 객체 타입 추론 기반 호출 대상 클래스 식별
+- Controller → Service → Provider 형태의 연쇄 영향 범위 추적
 
 ---
 ## 현재 진행 상황
@@ -108,6 +111,9 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] 영향 범위(Call Chain) 분석
 - [x] Impact Tree UI 시각화
 - [x] 보안 민감 메서드 탐지
+- [x] 전체 Java 소스 기반 AST 분석
+- [x] 클래스 간 메서드 호출 흐름 분석
+- [x] 객체 타입 추론 기반 호출 대상 클래스 식별
 
 ---
 
@@ -145,11 +151,11 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - AST 기반 추가 위험 점수 반영
 - 메서드 호출 체인(Call Chain) 분석
 - 영향 범위(Impact Chain) 분석
-- Impact Tree 기반 호출 흐름 시각화
-- 클래스 기반 메서드 호출 흐름 분석 지원
 - 객체 타입 추론 기반 Impact Tree 분석
 - GitHub PR 변경 파일의 전체 Java 소스 기반 AST 분석
 - 클래스/메서드 단위 Call Graph 분석
+- Controller → Service → Provider 형태의 호출 체인 추적
+- Impact Tree 기반 연쇄 호출 흐름 시각화
 
 ---
 
@@ -217,6 +223,8 @@ MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하
 - 메서드 호출 관계 기반 영향 범위 분석
 - AST 기반 보안 민감 메서드 탐지
 - Impact Tree 기반 호출 흐름 시각화
+- 전체 Java 소스 기반 AST 분석을 통해 클래스 간 호출 흐름을 추적하고,
+  Controller → Service → Provider 형태의 연쇄 영향 범위를 시각화
 
 등 협업 관점의 위험 요소를 함께 분석한다.
 

@@ -36,6 +36,7 @@ def analyze_pr(payload: dict):
     ast_result = analyze_changed_structure(
         pr_info["files"]
     )
+    print(ast_result["call_relations"])
     deep_impact_chains = build_deep_call_chains(
         ast_result["call_relations"]
     )

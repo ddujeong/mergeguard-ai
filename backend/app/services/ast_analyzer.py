@@ -21,166 +21,172 @@ def extract_java_structure(
     classes = []
     methods = []
     method_calls = []
-
     call_relations = []
-    current_class = "UnknownClass"
-    class_stack = []
-    variable_types = {}
 
+    variable_types = {}
+    class_methods = {}
+
+    # 1-pass: 클래스, 필드/지역변수 타입, 메서드 목록 먼저 수집
     stack = [root]
+
+    current_class = "UnknownClass"
 
     while stack:
 
         node = stack.pop()
-        if node.type == "field_declaration":
 
-            type_node = node.child_by_field_name("type")
-
-            declarator_node = None
-
-            for child in node.children:
-
-                if child.type == "variable_declarator":
-                    declarator_node = child
-                    break
-
-            if type_node and declarator_node:
-
-                variable_name_node = (
-                    declarator_node.child_by_field_name("name")
-                )
-
-                if variable_name_node:
-
-                    variable_name = (
-                        variable_name_node.text.decode("utf-8")
-                    )
-
-                    variable_type = (
-                        type_node.text.decode("utf-8")
-                    )
-
-                    variable_types[variable_name] = variable_type
-        if node.type == "local_variable_declaration":
-
-            type_node = node.child_by_field_name("type")
-
-            declarator_node = None
-
-            for child in node.children:
-
-                if child.type == "variable_declarator":
-                    declarator_node = child
-                    break
-
-            if type_node and declarator_node:
-
-                variable_name_node = (
-                    declarator_node.child_by_field_name("name")
-                )
-
-                if variable_name_node:
-
-                    variable_name = (
-                        variable_name_node.text.decode("utf-8")
-                    )
-
-                    variable_type = (
-                        type_node.text.decode("utf-8")
-                    )
-
-                    variable_types[variable_name] = variable_type
         if node.type == "class_declaration":
-            
+
             name_node = node.child_by_field_name("name")
 
             if name_node:
-                current_class = (
-                    name_node.text.decode("utf-8")
-                )
+                current_class = name_node.text.decode("utf-8")
                 classes.append(current_class)
-                class_stack.append(current_class)
+
+        if node.type in [
+            "field_declaration",
+            "local_variable_declaration"
+        ]:
+
+            variable_type = None
+            variable_name = None
+
+            for child in node.children:
+
+                if child.type in [
+                    "type_identifier",
+                    "generic_type",
+                    "scoped_type_identifier"
+                ]:
+                    variable_type = child.text.decode("utf-8")
+
+                if child.type == "variable_declarator":
+
+                    variable_name_node = (
+                        child.child_by_field_name("name")
+                    )
+
+                    if variable_name_node:
+                        variable_name = (
+                            variable_name_node.text.decode("utf-8")
+                        )
+
+            if variable_type and variable_name:
+                variable_types[variable_name] = variable_type
 
         if node.type == "method_declaration":
 
-            method_name_node = (
-                node.child_by_field_name("name")
-            )
-
-            method_class = (
-                class_stack[-1]
-                if class_stack
-                else "UnknownClass"
-            )
+            method_name_node = node.child_by_field_name("name")
 
             if method_name_node:
 
-                method_name = (
-                    method_name_node.text.decode("utf-8")
-                )
-
+                method_name = method_name_node.text.decode("utf-8")
                 methods.append(method_name)
 
-                body_node = (
-                    node.child_by_field_name("body")
-                )
+                class_methods[method_name] = current_class
 
-                if body_node:
+        stack.extend(node.children)
 
-                    body_stack = [body_node]
+    # 2-pass: 메서드 호출 분석
+    stack = [root]
 
-                    while body_stack:
+    current_class = "UnknownClass"
 
-                        body_child = body_stack.pop()
+    while stack:
 
-                        if body_child.type == "method_invocation":
+        node = stack.pop()
 
-                            call_name_node = (
-                                body_child.child_by_field_name("name")
-                            )
+        if node.type == "class_declaration":
 
-                            object_node = (
-                                body_child.child_by_field_name("object")
-                            )
+            name_node = node.child_by_field_name("name")
 
-                            if call_name_node:
+            if name_node:
+                current_class = name_node.text.decode("utf-8")
 
-                                called_method = (
-                                    call_name_node.text.decode("utf-8")
-                                )
+        if node.type == "method_declaration":
 
-                                object_class = None
+            method_name_node = node.child_by_field_name("name")
 
-                                if object_node:
+            if not method_name_node:
+                stack.extend(node.children)
+                continue
 
-                                    object_name = (
-                                        object_node.text.decode("utf-8")
-                                    )
+            method_name = method_name_node.text.decode("utf-8")
+            method_class = class_methods.get(
+                method_name,
+                current_class
+            )
 
-                                    object_class = (
-                                        variable_types.get(object_name)
-                                    )
+            body_node = node.child_by_field_name("body")
 
-                                method_calls.append(
-                                    called_method
-                                )
+            if body_node:
 
-                                callee_class = (
-                                    object_class
-                                    if object_class
-                                    else method_class
-                                )
+                body_stack = [body_node]
 
-                                call_relations.append({
-                                    "caller_class": method_class,
-                                    "caller": method_name,
-                                    "callee_class": callee_class,
-                                    "callee": called_method
-                                })
+                while body_stack:
 
-                        body_stack.extend(
-                            body_child.children
+                    body_child = body_stack.pop()
+
+                    if body_child.type == "method_invocation":
+
+                        call_name_node = (
+                            body_child.child_by_field_name("name")
                         )
+
+                        object_node = (
+                            body_child.child_by_field_name("object")
+                        )
+
+                        if call_name_node:
+
+                            called_method = (
+                                call_name_node.text.decode("utf-8")
+                            )
+
+                            object_name = None
+                            object_class = None
+
+                            if not object_node:
+
+                                for child in body_child.children:
+
+                                    child_text = child.text.decode("utf-8")
+
+                                    if (
+                                        child.type == "identifier"
+                                        and child_text != called_method
+                                    ):
+                                        object_node = child
+                                        break
+
+                            if object_node:
+
+                                object_name = (
+                                    object_node.text.decode("utf-8")
+                                )
+
+                                object_class = (
+                                    variable_types.get(object_name)
+                                )
+
+                            method_calls.append(called_method)
+
+                            callee_class = (
+                                object_class
+                                if object_class
+                                else method_class
+                            )
+
+                            call_relations.append({
+                                "caller_class": method_class,
+                                "caller": method_name,
+                                "callee_class": callee_class,
+                                "callee": called_method,
+                                "object_name": object_name,
+                                "object_class": object_class
+                            })
+
+                    body_stack.extend(body_child.children)
 
         stack.extend(node.children)
 
@@ -190,8 +196,7 @@ def extract_java_structure(
         "method_calls": list(set(method_calls)),
         "call_relations": call_relations
     }
-
-
+    
 def analyze_changed_structure(files: list):
 
     all_classes = []
