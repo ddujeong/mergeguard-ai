@@ -14,6 +14,7 @@ from app.services.impact_chain_analyzer import (
     build_deep_call_chains,
     calculate_ripple_effect
 )
+from app.services.discord_service import send_discord_alert
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -39,7 +40,6 @@ def analyze_pr(payload: dict):
     ast_result = analyze_changed_structure(
         pr_info["files"]
     )
-    print(ast_result["call_relations"])
     deep_impact_chains = build_deep_call_chains(
         ast_result["call_relations"]
     )
@@ -60,20 +60,23 @@ def analyze_pr(payload: dict):
         risk_result,
         conflict_result
     )
+    result_data = {
+        **pr_info,
+        "risk_analysis": risk_result,
+        "conflict_analysis": conflict_result,
+        "llm_review": llm_review,
+        "merge_guide": merge_guide,
+        "complexity_analysis": complexity_result,
+        "ast_analysis": ast_result,
+        "ast_risk_analysis": ast_risk,
+        "deep_impact_analysis": deep_impact_chains,
+        "ripple_effect": ripple_effect,
+        "pr_url": pr_url
+    }
+    send_discord_alert(result_data)
     return {
         "success": True,
-        "data": {
-            **pr_info,
-            "risk_analysis": risk_result,
-            "conflict_analysis": conflict_result,
-            "llm_review": llm_review,
-            "merge_guide": merge_guide,
-            "complexity_analysis": complexity_result,
-            "ast_analysis": ast_result,
-            "ast_risk_analysis": ast_risk,
-            "deep_impact_analysis": deep_impact_chains,
-            "ripple_effect": ripple_effect
-        }
+        "data": result_data
     }
 @router.post("/analyze-diff")
 def analyze_diff(request: DiffAnalyzeRequest):
