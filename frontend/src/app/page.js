@@ -477,6 +477,48 @@ export default function HomePage() {
                 </div>
               </section>
             )}
+            {result.ast_analysis.call_relations?.length > 0 && (
+              <section className="rounded-2xl border bg-white p-5 shadow-sm">
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold">
+                    메서드 호출 관계 분석
+                  </h2>
+
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+                    CALL GRAPH
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+
+                  {result.ast_analysis.call_relations.map(
+                    (relation, index) => (
+
+                      <div
+                        key={index}
+                        className="rounded-xl border bg-gray-50 p-4"
+                      >
+
+                        <span className="font-semibold text-indigo-600">
+                          {relation.caller}()
+                        </span>
+
+                        <span className="mx-2 text-gray-400">
+                          →
+                        </span>
+
+                        <span className="font-semibold text-emerald-600">
+                          {relation.callee}()
+                        </span>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+              </section>
+            )}
             <div className="rounded-lg border bg-white p-5 text-black">
               <h2 className="mb-3 text-xl font-bold">
                 협업 충돌 분석

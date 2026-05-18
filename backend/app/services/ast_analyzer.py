@@ -16,10 +16,10 @@ def extract_java_structure(code: str):
     root = tree.root_node
 
     classes = []
-
     methods = []
-
     method_calls = []
+
+    call_relations = []
 
     stack = [root]
 
@@ -39,27 +39,58 @@ def extract_java_structure(code: str):
 
         if node.type == "method_declaration":
 
-            name_node = node.child_by_field_name("name")
+            method_name_node = node.child_by_field_name("name")
 
-            if name_node:
+            if method_name_node:
 
-                methods.append(
-                    name_node.text.decode("utf-8")
+                method_name = (
+                    method_name_node.text.decode("utf-8")
                 )
-        if node.type == "method_invocation":
 
-            name_node = node.child_by_field_name("name")
+                methods.append(method_name)
 
-            if name_node:
-                method_calls.append(
-                    name_node.text.decode("utf-8")
-                )
+                body_node = node.child_by_field_name("body")
+
+                if body_node:
+
+                    body_stack = [body_node]
+
+                    while body_stack:
+
+                        body_child = body_stack.pop()
+
+                        if body_child.type == "method_invocation":
+
+                            call_name_node = (
+                                body_child.child_by_field_name("name")
+                            )
+
+                            if call_name_node:
+
+                                called_method = (
+                                    call_name_node.text.decode("utf-8")
+                                )
+
+                                method_calls.append(
+                                    called_method
+                                )
+
+                                call_relations.append({
+                                    "caller": method_name,
+                                    "callee": called_method
+                                })
+
+                        body_stack.extend(
+                            body_child.children
+                        )
+
         stack.extend(node.children)
 
     return {
         "classes": list(set(classes)),
         "methods": list(set(methods)),
-        "method_calls": list(set(method_calls))
+        "method_calls": list(set(method_calls)),
+        "call_relations": call_relations
     }
 
 
@@ -70,7 +101,7 @@ def analyze_changed_structure(files: list):
     all_methods = []
 
     all_method_calls = []
-    
+    all_call_relations = []
     for file in files:
 
         filename = file.get("filename", "")
@@ -97,8 +128,30 @@ def analyze_changed_structure(files: list):
             result["method_calls"]
         )
 
+        all_call_relations.extend(
+            result["call_relations"]
+        )
+    
+    unique_call_relations = []
+
+    seen = set()
+
+    for relation in all_call_relations:
+
+        key = (
+            relation["caller"],
+            relation["callee"]
+        )
+
+        if key not in seen:
+
+            seen.add(key)
+
+            unique_call_relations.append(relation)
+
     return {
         "classes": list(set(all_classes)),
         "methods": list(set(all_methods)),
-        "method_calls": list(set(all_method_calls))
+        "method_calls": list(set(all_method_calls)),
+        "call_relations": unique_call_relations
     }
