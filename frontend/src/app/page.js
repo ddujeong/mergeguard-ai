@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { analyzeDiffApi, analyzePrApi } from "@/api/reviewApi";
@@ -19,8 +19,7 @@ const getRiskBadgeStyle = (level) => {
 
   return "bg-green-100 text-green-700 border-green-300";
 };
-
-export default function HomePage() {
+function HomePageContent() {
 
   const [prUrl, setPrUrl] = useState("");
 
@@ -924,5 +923,12 @@ export default function HomePage() {
       </div>
 
     </main>
+  );
+}
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="p-10">Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }
