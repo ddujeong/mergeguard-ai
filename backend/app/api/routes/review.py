@@ -145,3 +145,34 @@ def analyze_diff(request: DiffAnalyzeRequest):
             "ripple_effect": ripple_effect
         }
     }
+
+@router.post("/github/webhook")
+def github_webhook(payload: dict):
+
+    action = payload.get("action")
+
+    if action not in ["opened", "synchronize", "reopened"]:
+        return {
+            "success": True,
+            "message": "ignored event"
+        }
+
+    pull_request = payload.get("pull_request")
+
+    if not pull_request:
+        return {
+            "success": False,
+            "message": "pull_request payload missing"
+        }
+
+    pr_url = pull_request.get("html_url")
+
+    if not pr_url:
+        return {
+            "success": False,
+            "message": "pr_url missing"
+        }
+
+    return analyze_pr({
+        "pr_url": pr_url
+    })
