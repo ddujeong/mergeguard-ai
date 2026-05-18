@@ -589,6 +589,58 @@ export default function HomePage() {
                 </p>
               </section>
             )}
+            <div className="rounded-2xl border p-6 bg-white">
+              <div className="flex items-center justify-between mb-4">
+
+                <h2 className="text-2xl font-bold">
+                  Ripple Effect 분석
+                </h2>
+
+                <span
+                  className={`
+        rounded-full px-4 py-1 text-sm font-bold
+        ${result.ripple_effect?.level === "HIGH"
+                      ? "bg-red-100 text-red-600"
+                      : result.ripple_effect?.level === "MEDIUM"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-green-100 text-green-700"
+                    }
+      `}
+                >
+                  {result.ripple_effect?.level}
+                </span>
+              </div>
+
+              <div className="space-y-2 text-sm">
+
+                <div>
+                  영향 점수:
+                  {" "}
+                  <strong>
+                    {result.ripple_effect?.score}
+                  </strong>
+                </div>
+
+                <div>
+                  최대 호출 깊이:
+                  {" "}
+                  <strong>
+                    {result.ripple_effect?.max_depth}
+                  </strong>
+                </div>
+
+                <div>
+                  보안 관련 호출:
+                  {" "}
+                  <strong>
+                    {result.ripple_effect?.security_related_calls}
+                  </strong>
+                </div>
+                <div>
+                  영향 메서드 수: <strong>{result.ripple_effect?.total_affected_methods}</strong>
+                </div>
+              </div>
+            </div>
             {result.ast_analysis?.undefined_calls?.length > 0 && (
               <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm">
 

@@ -84,6 +84,12 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 객체 타입 추론 기반 호출 대상 클래스 식별
 - Controller → Service → Provider 형태의 연쇄 영향 범위 추적
 
+### 8. Ripple Effect 분석
+- 호출 체인 기반 영향 범위 점수 계산
+- 최대 호출 깊이 분석
+- 보안 관련 호출 비율 기반 위험도 계산
+- LOW / MEDIUM / HIGH 단계 제공
+
 ---
 ## 현재 진행 상황
 

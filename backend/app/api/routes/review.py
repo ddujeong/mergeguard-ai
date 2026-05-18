@@ -10,7 +10,10 @@ from app.services.diff_parser import parse_diff_text
 from app.services.merge_strategy_service import generate_merge_strategy
 from app.services.ast_analyzer import analyze_changed_structure
 from app.services.ast_risk_analyzer import calculate_ast_risk
-from app.services.impact_chain_analyzer import build_deep_call_chains
+from app.services.impact_chain_analyzer import (
+    build_deep_call_chains,
+    calculate_ripple_effect
+)
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -40,6 +43,9 @@ def analyze_pr(payload: dict):
     deep_impact_chains = build_deep_call_chains(
         ast_result["call_relations"]
     )
+    ripple_effect = calculate_ripple_effect(
+        deep_impact_chains
+    )
     ast_risk = calculate_ast_risk(
         ast_result.get("method_risks", [])
     )
@@ -65,7 +71,8 @@ def analyze_pr(payload: dict):
             "complexity_analysis": complexity_result,
             "ast_analysis": ast_result,
             "ast_risk_analysis": ast_risk,
-            "deep_impact_analysis": deep_impact_chains
+            "deep_impact_analysis": deep_impact_chains,
+            "ripple_effect": ripple_effect
         }
     }
 @router.post("/analyze-diff")
@@ -91,6 +98,9 @@ def analyze_diff(request: DiffAnalyzeRequest):
     
     deep_impact_chains = build_deep_call_chains(
         ast_result["call_relations"]
+    )
+    ripple_effect = calculate_ripple_effect(
+        deep_impact_chains
     )
     
     ast_risk = calculate_ast_risk(
@@ -128,6 +138,7 @@ def analyze_diff(request: DiffAnalyzeRequest):
                 "conflict_prs": []
             },
             "ast_risk_analysis": ast_risk,
-            "deep_impact_analysis": deep_impact_chains
+            "deep_impact_analysis": deep_impact_chains,
+            "ripple_effect": ripple_effect
         }
     }

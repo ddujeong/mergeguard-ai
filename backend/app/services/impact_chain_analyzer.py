@@ -74,3 +74,71 @@ def build_deep_call_chains(call_relations):
         )
 
     return chains
+
+def calculate_ripple_effect(chains):
+
+    max_depth = 0
+
+    visited_methods = set()
+    security_methods = set()
+
+    security_keywords = [
+        "auth",
+        "token",
+        "password",
+        "login",
+        "jwt"
+    ]
+
+    for chain in chains:
+
+        max_depth = max(
+            max_depth,
+            len(chain)
+        )
+
+        for node in chain:
+
+            method_key = (
+                node["class_name"],
+                node["method"]
+            )
+
+            visited_methods.add(method_key)
+
+            method_text = (
+                f"{node['class_name']}.{node['method']}"
+                .lower()
+            )
+
+            if any(
+                keyword in method_text
+                for keyword in security_keywords
+            ):
+                security_methods.add(method_key)
+
+    total_calls = len(visited_methods)
+    security_count = len(security_methods)
+
+    score = (
+        total_calls * 8
+        + max_depth * 10
+        + security_count * 12
+    )
+
+    if score >= 120:
+        level = "HIGH"
+
+    elif score >= 60:
+        level = "MEDIUM"
+
+    else:
+        level = "LOW"
+
+    return {
+        "score": score,
+        "level": level,
+        "max_depth": max_depth,
+        "total_affected_methods": total_calls,
+        "security_related_calls": security_count
+    }
