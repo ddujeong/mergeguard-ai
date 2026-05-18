@@ -6,26 +6,24 @@ def build_deep_call_chains(call_relations):
 
     for relation in call_relations:
 
-        class_name = relation.get("class_name") or "UnknownClass"
-
         caller_key = (
-            class_name,
+            relation.get("caller_class") or "UnknownClass",
             relation["caller"]
         )
 
         callee_key = (
-            class_name,
+            relation.get("callee_class") or "UnknownClass",
             relation["callee"]
         )
 
         caller_node = {
-            "class_name": class_name,
-            "method": relation["caller"]
+            "class_name": caller_key[0],
+            "method": caller_key[1]
         }
 
         callee_node = {
-            "class_name": class_name,
-            "method": relation["callee"]
+            "class_name": callee_key[0],
+            "method": callee_key[1]
         }
 
         node_map[caller_key] = caller_node

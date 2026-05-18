@@ -7,7 +7,10 @@ JAVA_LANGUAGE = Language(language())
 parser = Parser(JAVA_LANGUAGE)
 
 
-def extract_java_structure(code: str):
+def extract_java_structure(
+    code: str,
+    filename: str = ""
+):
 
     tree = parser.parse(
         bytes(code, "utf-8")
@@ -20,7 +23,8 @@ def extract_java_structure(code: str):
     method_calls = []
 
     call_relations = []
-    current_class = None
+    current_class = "UnknownClass"
+    class_stack = []
     variable_types = {}
 
     stack = [root]
@@ -28,6 +32,35 @@ def extract_java_structure(code: str):
     while stack:
 
         node = stack.pop()
+        if node.type == "field_declaration":
+
+            type_node = node.child_by_field_name("type")
+
+            declarator_node = None
+
+            for child in node.children:
+
+                if child.type == "variable_declarator":
+                    declarator_node = child
+                    break
+
+            if type_node and declarator_node:
+
+                variable_name_node = (
+                    declarator_node.child_by_field_name("name")
+                )
+
+                if variable_name_node:
+
+                    variable_name = (
+                        variable_name_node.text.decode("utf-8")
+                    )
+
+                    variable_type = (
+                        type_node.text.decode("utf-8")
+                    )
+
+                    variable_types[variable_name] = variable_type
         if node.type == "local_variable_declaration":
 
             type_node = node.child_by_field_name("type")
@@ -66,10 +99,19 @@ def extract_java_structure(code: str):
                     name_node.text.decode("utf-8")
                 )
                 classes.append(current_class)
+                class_stack.append(current_class)
 
         if node.type == "method_declaration":
 
-            method_name_node = node.child_by_field_name("name")
+            method_name_node = (
+                node.child_by_field_name("name")
+            )
+
+            method_class = (
+                class_stack[-1]
+                if class_stack
+                else "UnknownClass"
+            )
 
             if method_name_node:
 
@@ -79,7 +121,9 @@ def extract_java_structure(code: str):
 
                 methods.append(method_name)
 
-                body_node = node.child_by_field_name("body")
+                body_node = (
+                    node.child_by_field_name("body")
+                )
 
                 if body_node:
 
@@ -105,24 +149,33 @@ def extract_java_structure(code: str):
                                     call_name_node.text.decode("utf-8")
                                 )
 
-                                object_name = None
-                                
                                 object_class = None
 
                                 if object_node:
+
                                     object_name = (
                                         object_node.text.decode("utf-8")
                                     )
-                                    object_class = variable_types.get(object_name)
 
-                                method_calls.append(called_method)
+                                    object_class = (
+                                        variable_types.get(object_name)
+                                    )
+
+                                method_calls.append(
+                                    called_method
+                                )
+
+                                callee_class = (
+                                    object_class
+                                    if object_class
+                                    else method_class
+                                )
 
                                 call_relations.append({
-                                    "class_name": current_class,
+                                    "caller_class": method_class,
                                     "caller": method_name,
-                                    "callee": called_method,
-                                    "object_name": object_name,
-                                    "object_class": object_class
+                                    "callee_class": callee_class,
+                                    "callee": called_method
                                 })
 
                         body_stack.extend(
@@ -154,12 +207,18 @@ def analyze_changed_structure(files: list):
         if not filename.endswith(".java"):
             continue
 
-        patch = file.get("patch", "")
+        source_code = (
+            file.get("source_code")
+            or file.get("patch", "")
+        )
 
-        if not patch:
+        if not source_code:
             continue
 
-        result = extract_java_structure(patch)
+        result = extract_java_structure(
+            source_code,
+            filename
+        )
 
         all_classes.extend(
             result["classes"]
@@ -184,10 +243,10 @@ def analyze_changed_structure(files: list):
     for relation in all_call_relations:
 
         key = (
-            relation["class_name"],
+            relation["caller_class"],
             relation["caller"],
-            relation["callee"],
-            relation.get("object_name")
+            relation["callee_class"],
+            relation["callee"]
         )
 
         if key not in seen:

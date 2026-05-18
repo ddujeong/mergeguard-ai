@@ -70,7 +70,7 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Merge 이전 협업 위험 사전 탐지
 - 로컬 git diff 및 patch(.patch/.diff) 파일 기반 사전 위험 분석 지원
 
-### 7. AST 기반 코드 구조 분석
+### 7. AST 기반 코드 구조 및 영향 범위 분석
 - Tree-sitter 기반 Java AST 분석
 - 변경 클래스 및 메서드 추출
 - 메서드 호출 관계 분석
@@ -78,6 +78,8 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 보안 민감 메서드 탐지
 - AST 기반 메서드 위험도 계산
 - 영향 범위 트리(Impact Tree) 시각화
+- GitHub PR 변경 파일의 전체 Java 소스 기반 AST 분석
+- 클래스/메서드 단위 Call Graph 분석
 
 ---
 ## 현재 진행 상황
@@ -106,7 +108,6 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] 영향 범위(Call Chain) 분석
 - [x] Impact Tree UI 시각화
 - [x] 보안 민감 메서드 탐지
-- [x] AST 기반 메서드 위험도 계산
 
 ---
 
@@ -145,10 +146,10 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 메서드 호출 체인(Call Chain) 분석
 - 영향 범위(Impact Chain) 분석
 - Impact Tree 기반 호출 흐름 시각화
-- 보안 민감 메서드 자동 탐지
-- AST 기반 추가 위험 점수 반영
 - 클래스 기반 메서드 호출 흐름 분석 지원
 - 객체 타입 추론 기반 Impact Tree 분석
+- GitHub PR 변경 파일의 전체 Java 소스 기반 AST 분석
+- 클래스/메서드 단위 Call Graph 분석
 
 ---
 
@@ -156,7 +157,7 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 
 GitHub PR URL 또는 로컬 diff(.patch) 파일 입력
 → GitHub API 및 diff parser 기반 변경 사항 수집
-→ 위험 파일 / AST 구조 / 호출 체인 / 변경 규모 분석
+→ 위험 파일 / 전체 Java 소스 기반 AST 구조 / 호출 체인 / 변경 규모 분석
 → 협업 위험도 계산
 → 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성

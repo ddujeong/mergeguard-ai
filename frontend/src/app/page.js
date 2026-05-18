@@ -539,7 +539,7 @@ export default function HomePage() {
                       >
 
                         <span className="font-semibold text-indigo-600">
-                          {relation.caller}()
+                          {relation.caller_class}.{relation.caller}()
                         </span>
 
                         <span className="mx-2 text-gray-400">
@@ -547,9 +547,7 @@ export default function HomePage() {
                         </span>
 
                         <span className="font-semibold text-emerald-600">
-                          {relation.object_class
-                            ? `${relation.object_class}.${relation.callee}()`
-                            : `${relation.callee}()`}
+                          {relation.callee_class}.{relation.callee}()
                         </span>
 
                       </div>
