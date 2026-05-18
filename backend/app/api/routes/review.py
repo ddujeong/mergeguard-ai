@@ -9,6 +9,7 @@ from app.schemas.diff_request import DiffAnalyzeRequest
 from app.services.diff_parser import parse_diff_text
 from app.services.merge_strategy_service import generate_merge_strategy
 from app.services.ast_analyzer import analyze_changed_structure
+from app.services.ast_risk_analyzer import calculate_ast_risk
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -22,22 +23,31 @@ def analyze_pr(payload: dict):
 
     risk_result = analyze_risk(pr_info)
 
-    llm_review = generate_code_review(pr_info, risk_result)
-
     conflict_result = analyze_conflicts(
         pr_url,
         pr_info["files"]
-    )
-    merge_guide = generate_merge_strategy(
-        risk_result,
-        conflict_result
     )
     complexity_result = analyze_complexity(
         pr_info,
         risk_result
     )
+    
     ast_result = analyze_changed_structure(
         pr_info["files"]
+    )
+    ast_risk = calculate_ast_risk(
+        ast_result.get("method_risks", [])
+    )
+
+    risk_result["risk_score"] = min(
+        risk_result["risk_score"] + ast_risk["ast_risk_score"],
+        100
+    )
+    llm_review = generate_code_review(pr_info, risk_result)
+    
+    merge_guide = generate_merge_strategy(
+        risk_result,
+        conflict_result
     )
     return {
         "success": True,
@@ -48,7 +58,8 @@ def analyze_pr(payload: dict):
             "llm_review": llm_review,
             "merge_guide": merge_guide,
             "complexity_analysis": complexity_result,
-            "ast_analysis": ast_result
+            "ast_analysis": ast_result,
+            "ast_risk_analysis": ast_risk
         }
     }
 @router.post("/analyze-diff")
@@ -71,7 +82,14 @@ def analyze_diff(request: DiffAnalyzeRequest):
         risk_result
     )
     ast_result = analyze_changed_structure(files)
-    
+    ast_risk = calculate_ast_risk(
+        ast_result.get("method_risks", [])
+    )
+
+    risk_result["risk_score"] = min(
+        risk_result["risk_score"] + ast_risk["ast_risk_score"],
+        100
+    )
     llm_review = generate_code_review(
         pr_info,
         risk_result
@@ -97,6 +115,7 @@ def analyze_diff(request: DiffAnalyzeRequest):
             "conflict_analysis": {
                 "conflict_count": 0,
                 "conflict_prs": []
-            }
+            },
+            "ast_risk_analysis": ast_risk
         }
     }

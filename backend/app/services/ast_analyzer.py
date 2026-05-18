@@ -148,10 +148,92 @@ def analyze_changed_structure(files: list):
             seen.add(key)
 
             unique_call_relations.append(relation)
+    defined_methods = set(all_methods)
+    called_methods = set(all_method_calls)
 
+    undefined_calls = []
+
+    for call in called_methods:
+        if call not in defined_methods:
+            undefined_calls.append(call)
+    sensitive_keywords = [
+        "login",
+        "logout",
+        "auth",
+        "token",
+        "jwt",
+        "password",
+        "credential",
+        "delete",
+        "payment",
+        "admin",
+        "extract",
+        "userid",
+        "validate"
+    ]
+
+    sensitive_methods = []
+
+    for method in set(all_methods + all_method_calls):
+        lower_method = method.lower()
+
+        for keyword in sensitive_keywords:
+            if keyword in lower_method:
+                sensitive_methods.append(method)
+                break
+    high_keywords = [
+        "login",
+        "logout",
+        "token",
+        "jwt",
+        "password",
+        "credential",
+        "delete",
+        "payment",
+        "admin"
+    ]
+
+    medium_keywords = [
+        "auth",
+        "extract",
+        "userid",
+        "validate",
+        "check",
+        "verify"
+    ]
+
+    method_risks = []
+
+    for method in set(all_methods + all_method_calls):
+
+        lower_method = method.lower()
+
+        risk_level = "LOW"
+
+        for keyword in high_keywords:
+
+            if keyword in lower_method:
+                risk_level = "HIGH"
+                break
+
+        if risk_level != "HIGH":
+
+            for keyword in medium_keywords:
+
+                if keyword in lower_method:
+                    risk_level = "MEDIUM"
+                    break
+
+        method_risks.append({
+            "method": method,
+            "risk_level": risk_level
+        })
     return {
         "classes": list(set(all_classes)),
         "methods": list(set(all_methods)),
         "method_calls": list(set(all_method_calls)),
-        "call_relations": unique_call_relations
+        "call_relations": unique_call_relations,
+        "undefined_calls": undefined_calls,
+        "sensitive_methods": sensitive_methods,
+        "method_risks": method_risks
     }

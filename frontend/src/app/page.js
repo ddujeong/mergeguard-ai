@@ -337,6 +337,23 @@ export default function HomePage() {
               </div>
 
             </div>
+            {result.ast_risk_analysis && (
+              <div className="mt-4 rounded-xl border bg-orange-50 p-4">
+
+                <div className="flex items-center justify-between">
+
+                  <span className="font-semibold text-orange-700">
+                    AST 기반 추가 위험 점수
+                  </span>
+
+                  <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-bold text-orange-700">
+                    +{result.ast_risk_analysis.ast_risk_score}
+                  </span>
+
+                </div>
+
+              </div>
+            )}
             <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 text-black shadow-sm">
 
               <div className="mb-4 flex items-center justify-between">
@@ -510,6 +527,108 @@ export default function HomePage() {
 
                         <span className="font-semibold text-emerald-600">
                           {relation.callee}()
+                        </span>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+              </section>
+            )}
+            {result.ast_analysis?.undefined_calls?.length > 0 && (
+              <section className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm">
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-red-700">
+                    미정의 메서드 탐지
+                  </h2>
+
+                  <span className="rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+                    STATIC CHECK
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+                  {result.ast_analysis.undefined_calls.map((method, index) => (
+                    <div
+                      key={index}
+                      className="rounded-xl border bg-white p-4 text-red-700"
+                    >
+                      ⚠ {method}() 호출은 감지되었지만, 현재 분석 범위 내 구현 여부를 확인할 수 없습니다.
+                    </div>
+                  ))}
+                </div>
+
+              </section>
+            )}
+            {result.ast_analysis?.sensitive_methods?.length > 0 && (
+              <section className="rounded-2xl border border-orange-200 bg-orange-50 p-5 shadow-sm">
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold text-orange-700">
+                    보안 민감 메서드 탐지
+                  </h2>
+
+                  <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700">
+                    SECURITY CHECK
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {result.ast_analysis.sensitive_methods.map((method, index) => (
+                    <span
+                      key={index}
+                      className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-orange-700"
+                    >
+                      ⚠ {method}()
+                    </span>
+                  ))}
+                </div>
+
+                <p className="mt-3 text-sm text-orange-700">
+                  인증, 토큰, 비밀번호, 삭제, 결제 등 보안 영향이 큰 메서드는 리뷰 우선순위를 높게 판단합니다.
+                </p>
+
+              </section>
+            )}
+            {result.ast_analysis?.method_risks?.length > 0 && (
+              <section className="rounded-2xl border bg-white p-5 shadow-sm">
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold">
+                    메서드 위험도 분석
+                  </h2>
+
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+                    RISK SCORE
+                  </span>
+                </div>
+
+                <div className="space-y-3">
+
+                  {result.ast_analysis.method_risks.map(
+                    (item, index) => (
+
+                      <div
+                        key={index}
+                        className="flex items-center justify-between rounded-xl border p-4"
+                      >
+
+                        <span className="font-semibold">
+                          {item.method}()
+                        </span>
+
+                        <span
+                          className={`rounded-full px-3 py-1 text-sm font-bold
+              ${item.risk_level === "HIGH"
+                              ? "bg-red-100 text-red-700"
+                              : item.risk_level === "MEDIUM"
+                                ? "bg-yellow-100 text-yellow-700"
+                                : "bg-green-100 text-green-700"
+                            }`}
+                        >
+                          {item.risk_level}
                         </span>
 
                       </div>
