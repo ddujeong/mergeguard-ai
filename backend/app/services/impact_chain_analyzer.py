@@ -2,55 +2,76 @@ def build_deep_call_chains(call_relations):
 
     graph = {}
 
+    node_map = {}
+
     for relation in call_relations:
 
-        caller = relation["caller"]
-        callee = relation["callee"]
+        class_name = relation.get("class_name") or "UnknownClass"
 
-        if caller not in graph:
-            graph[caller] = []
+        caller_key = (
+            class_name,
+            relation["caller"]
+        )
 
-        graph[caller].append(callee)
+        callee_key = (
+            class_name,
+            relation["callee"]
+        )
 
-    visited = set()
+        caller_node = {
+            "class_name": class_name,
+            "method": relation["caller"]
+        }
+
+        callee_node = {
+            "class_name": class_name,
+            "method": relation["callee"]
+        }
+
+        node_map[caller_key] = caller_node
+        node_map[callee_key] = callee_node
+
+        if caller_key not in graph:
+            graph[caller_key] = []
+
+        graph[caller_key].append(callee_key)
 
     chains = []
 
-    def dfs(method, path, depth):
+    def dfs(method_key, path, visited, depth):
 
         if depth > 4:
             return
 
-        if method in visited:
+        if method_key in visited:
             return
 
-        visited.add(method)
+        visited.add(method_key)
 
-        next_calls = graph.get(method, [])
+        next_calls = graph.get(method_key, [])
 
         if not next_calls:
+            chains.append([
+                node_map[key]
+                for key in path
+            ])
+            return
 
-            chains.append(path.copy())
-
-        for next_method in next_calls:
-
-            path.append(next_method)
+        for next_key in next_calls:
 
             dfs(
-                next_method,
-                path,
+                next_key,
+                path + [next_key],
+                visited.copy(),
                 depth + 1
             )
 
-            path.pop()
-
-    for start_method in graph.keys():
-
-        visited.clear()
+    for start_key in graph.keys():
 
         dfs(
-            start_method,
-            [start_method],
+            start_key,
+            [start_key],
+            set(),
             0
         )
 

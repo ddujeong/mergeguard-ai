@@ -20,6 +20,7 @@ def extract_java_structure(code: str):
     method_calls = []
 
     call_relations = []
+    current_class = None
 
     stack = [root]
 
@@ -28,14 +29,14 @@ def extract_java_structure(code: str):
         node = stack.pop()
 
         if node.type == "class_declaration":
-
+            
             name_node = node.child_by_field_name("name")
 
             if name_node:
-
-                classes.append(
+                current_class = (
                     name_node.text.decode("utf-8")
                 )
+                classes.append(current_class)
 
         if node.type == "method_declaration":
 
@@ -65,19 +66,30 @@ def extract_java_structure(code: str):
                                 body_child.child_by_field_name("name")
                             )
 
+                            object_node = (
+                                body_child.child_by_field_name("object")
+                            )
+
                             if call_name_node:
 
                                 called_method = (
                                     call_name_node.text.decode("utf-8")
                                 )
 
-                                method_calls.append(
-                                    called_method
-                                )
+                                object_name = None
+
+                                if object_node:
+                                    object_name = (
+                                        object_node.text.decode("utf-8")
+                                    )
+
+                                method_calls.append(called_method)
 
                                 call_relations.append({
+                                    "class_name": current_class,
                                     "caller": method_name,
-                                    "callee": called_method
+                                    "callee": called_method,
+                                    "object_name": object_name
                                 })
 
                         body_stack.extend(
@@ -139,8 +151,10 @@ def analyze_changed_structure(files: list):
     for relation in all_call_relations:
 
         key = (
+            relation["class_name"],
             relation["caller"],
-            relation["callee"]
+            relation["callee"],
+            relation.get("object_name")
         )
 
         if key not in seen:

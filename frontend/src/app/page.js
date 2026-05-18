@@ -40,12 +40,18 @@ export default function HomePage() {
 
       if (!root) return acc;
 
-      if (!acc[root]) {
-        acc[root] = new Set();
+      const rootKey = `${root.class_name}.${root.method}`;
+
+      if (!acc[rootKey]) {
+        acc[rootKey] = {
+          root,
+          children: new Map(),
+        };
       }
 
       chain.slice(1).forEach((method) => {
-        acc[root].add(method);
+        const childKey = `${method.class_name}.${method.method}`;
+        acc[rootKey].children.set(childKey, method);
       });
 
       return acc;
@@ -541,7 +547,9 @@ export default function HomePage() {
                         </span>
 
                         <span className="font-semibold text-emerald-600">
-                          {relation.callee}()
+                          {relation.object_name
+                            ? `${relation.object_name}.${relation.callee}()`
+                            : `${relation.callee}()`}
                         </span>
 
                       </div>
@@ -561,16 +569,16 @@ export default function HomePage() {
                 </div>
 
                 <div className="space-y-4">
-                  {Object.entries(groupedImpactAnalysis).map(([root, children]) => (
-                    <div key={root} className="rounded-xl border bg-gray-50 p-4">
+                  {Object.entries(groupedImpactAnalysis).map(([rootKey, group]) => (
+                    <div key={rootKey} className="rounded-xl border bg-gray-50 p-4">
                       <div className="font-bold text-cyan-700">
-                        ● {root}()
+                        ● {group.root.class_name}.{group.root.method}()
                       </div>
 
                       <div className="mt-2 space-y-1 pl-6">
-                        {[...children].map((child) => (
-                          <div key={child} className="font-semibold text-cyan-700">
-                            └─ {child}()
+                        {[...group.children.entries()].map(([childKey, child]) => (
+                          <div key={childKey} className="font-semibold text-cyan-700">
+                            └─ {child.class_name}.{child.method}()
                           </div>
                         ))}
                       </div>
