@@ -32,6 +32,17 @@ MergeGuard AI는 GitHub PR 및 로컬 diff 기반 변경 사항과
 ### Static Analysis
 - Tree-sitter
 
+## Deploy
+
+- Frontend:
+  https://mergeguard-ai.vercel.app
+
+- Backend API:
+  https://mergeguard-api-849548884931.asia-northeast3.run.app
+
+- Swagger:
+  https://mergeguard-api-849548884931.asia-northeast3.run.app/docs
+
 ## 인증 방식
 
 GitHub API Rate Limit 문제를 해결하기 위해
@@ -89,6 +100,13 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 최대 호출 깊이 분석
 - 보안 관련 호출 비율 기반 위험도 계산
 - LOW / MEDIUM / HIGH 단계 제공
+
+### 9. GitHub Webhook 자동 분석
+
+- PR 생성 및 업데이트 이벤트 자동 감지
+- GitHub Webhook 기반 자동 PR 분석
+- Discord 실시간 분석 알림 전송
+- Dashboard 바로가기 자동 연동
 
 ---
 ## 현재 진행 상황
@@ -167,13 +185,27 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 
 ## 시스템 흐름
 
-GitHub PR URL 또는 로컬 diff(.patch) 파일 입력
-→ GitHub API 및 diff parser 기반 변경 사항 수집
-→ 위험 파일 / 전체 Java 소스 기반 AST 구조 / 호출 체인 / 변경 규모 분석
+[ GitHub PR 기반 분석 ]
+
+GitHub PR 생성
+→ GitHub Webhook 이벤트 발생
+→ MergeGuard AI 자동 분석
+→ GitHub API 기반 PR / Diff 수집
+→ 위험 파일 / AST 구조 / 호출 체인 분석
 → 협업 위험도 계산
-→ 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성
-→ AI Merge Strategy 생성
+→ Discord 실시간 알림 전송
+→ Dashboard UI 출력
+
+
+[ Local Diff 기반 사전 분석 ]
+
+로컬 git diff(.patch/.diff) 파일 입력
+→ Diff Parser 기반 변경 사항 수집
+→ 위험 파일 / AST 구조 / 호출 체인 분석
+→ 협업 위험도 계산
+→ Gemini 기반 AI 코드 리뷰 생성
+→ Merge 이전 사전 위험도 확인
 → Dashboard UI 출력
 
 ---
@@ -237,6 +269,17 @@ MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하
 또한 GitHub PR 기반 분석뿐 아니라,
 로컬 git diff(.patch) 기반 사전 분석 기능을 통해
 PR 생성 이전 단계에서도 위험도를 점검할 수 있도록 설계하였다.
+
+특히 MergeGuard AI는
+단순 코드 품질 리뷰를 넘어,
+
+- 협업 충돌 가능성
+- 영향 범위(Call Chain)
+- AST 기반 구조 분석
+- Ripple Effect 기반 연쇄 영향도
+- GitHub Webhook 기반 실시간 자동 분석
+
+까지 통합적으로 분석하는 협업 중심 AI 리뷰 플랫폼을 목표로 한다.
 
 ## 테스트 시나리오
 
