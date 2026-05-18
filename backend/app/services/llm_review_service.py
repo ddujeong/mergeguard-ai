@@ -1,4 +1,5 @@
 import json
+import re
 import google.generativeai as genai
 
 from app.core.config import GEMINI_API_KEY
@@ -62,9 +63,18 @@ PR Diff:
 
     text = response.text.strip()
 
-    if text.startswith("```json"):
-        text = text.replace("```json", "").replace("```", "").strip()
+    text = re.sub(r"^```json", "", text)
+    text = re.sub(r"^```", "", text)
+    text = re.sub(r"```$", "", text)
+    text = text.strip()
 
-    parsed = json.loads(text)
+    try:
+        parsed = json.loads(text)
+    except Exception:
+        parsed = {
+            "summary": text,
+            "issues": [],
+            "suggestions": []
+        }
 
     return parsed

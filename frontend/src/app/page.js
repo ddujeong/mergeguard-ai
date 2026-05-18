@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { analyzePrApi } from "@/api/reviewApi";
+import { analyzeDiffApi, analyzePrApi } from "@/api/reviewApi";
 
 import ReactMarkdown from "react-markdown";
 
@@ -27,18 +27,47 @@ export default function HomePage() {
 
   const [loading, setLoading] = useState(false);
 
+  const [mode, setMode] = useState("pr");
+  const [diffText, setDiffText] = useState("");
+
   const handleAnalyze = async () => {
     try {
       setLoading(true);
       setResult(null);
 
       const response = await analyzePrApi(prUrl);
-      setResult(response.data);
+      setResult(response);
     } catch (error) {
       console.error(error);
       alert("분석 실패");
     } finally {
       setLoading(false);
+    }
+  };
+  const handleAnalyzeDiff = async () => {
+    console.log("diff button clicked");
+    console.log("diffText length:", diffText.length);
+    try {
+
+      setLoading(true);
+
+      setResult(null);
+
+      const response = await analyzeDiffApi(diffText);
+      console.log("diff response:", response);
+
+      setResult(response);
+
+    } catch (error) {
+
+      console.error(error);
+
+      alert("Diff 분석 실패");
+
+    } finally {
+
+      setLoading(false);
+
     }
   };
 
@@ -50,25 +79,74 @@ export default function HomePage() {
         <h1 className="mb-6 text-3xl font-bold">
           MergeGuard AI
         </h1>
-
-        <div className="flex gap-3">
-
-          <input
-            type="text"
-            value={prUrl}
-            onChange={(e) => setPrUrl(e.target.value)}
-            placeholder="GitHub PR URL 입력"
-            className="flex-1 rounded-lg border p-3 text-black"
-          />
+        <div className="mb-6 flex gap-3">
 
           <button
-            onClick={handleAnalyze}
-            className="rounded-lg bg-black px-6 py-3 text-white"
+            onClick={() => setMode("pr")}
+            className={
+              mode === "pr"
+                ? "rounded-lg bg-black px-5 py-2 text-white"
+                : "rounded-lg bg-gray-200 px-5 py-2 text-gray-700"
+            }
           >
-            분석하기
+            GitHub PR 분석
           </button>
-        </div>
 
+          <button
+            onClick={() => setMode("diff")}
+            className={
+              mode === "diff"
+                ? "rounded-lg bg-indigo-600 px-5 py-2 text-white"
+                : "rounded-lg bg-gray-200 px-5 py-2 text-gray-700"
+            }
+          >
+            로컬 Diff 분석
+          </button>
+
+        </div>
+        {mode === "pr" && (
+
+          <div className="flex gap-3">
+
+            <input
+              type="text"
+              value={prUrl}
+              onChange={(e) => setPrUrl(e.target.value)}
+              placeholder="GitHub PR URL 입력"
+              className="flex-1 rounded-lg border p-3 text-black"
+            />
+
+            <button
+              onClick={handleAnalyze}
+              className="rounded-lg bg-black px-6 py-3 text-white"
+            >
+              분석하기
+            </button>
+
+          </div>
+
+        )}
+        {mode === "diff" && (
+
+          <div className="space-y-4">
+
+            <textarea
+              value={diffText}
+              onChange={(e) => setDiffText(e.target.value)}
+              placeholder="git diff 결과를 붙여넣으세요"
+              className="h-72 w-full rounded-lg border p-4 font-mono text-sm text-black"
+            />
+
+            <button
+              onClick={handleAnalyzeDiff}
+              className="rounded-lg bg-indigo-600 px-6 py-3 text-white"
+            >
+              로컬 Diff 분석
+            </button>
+
+          </div>
+
+        )}
         {loading && (
           <div className="mt-8 rounded-2xl border bg-white p-6 text-black shadow-sm">
             <div className="flex items-center gap-4">
@@ -112,7 +190,7 @@ export default function HomePage() {
               </div>
 
             </div>
-            {result.risk_analysis.detected_keywords?.length > 0 && (
+            {result.risk_analysis?.detected_keywords?.length > 0 && (
 
               <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5 text-orange-800 shadow-sm">
 
@@ -131,7 +209,7 @@ export default function HomePage() {
                     <p className="leading-relaxed">
                       현재 PR은{" "}
                       <span className="font-semibold">
-                        {result.risk_analysis.detected_keywords.join(", ")}
+                        {result.risk_analysis?.detected_keywords?.join(", ")}
                       </span>
                       {" "}관련 변경을 포함하고 있습니다.
                       팀원 작업 및 최신 브랜치 상태를 확인한 뒤 merge 하는 것을 권장합니다.
@@ -153,10 +231,10 @@ export default function HomePage() {
 
                 <span
                   className={`rounded-full border px-4 py-1 text-sm font-semibold ${getRiskBadgeStyle(
-                    result.risk_analysis.risk_level
+                    result.risk_analysis?.risk_level
                   )}`}
                 >
-                  {result.risk_analysis.risk_level}
+                  {result.risk_analysis?.risk_level}
                 </span>
 
               </div>
@@ -165,42 +243,42 @@ export default function HomePage() {
                 위험 점수:
                 {" "}
                 <span className="font-bold">
-                  {result.risk_analysis.risk_score}
+                  {result.risk_analysis?.risk_score}
                 </span>
               </p>
               <div className="mt-4">
 
                 <div className="mb-2 flex justify-between text-sm">
                   <span>병합 위험도</span>
-                  <span>{result.risk_analysis.risk_score}%</span>
+                  <span>{result.risk_analysis?.risk_score}%</span>
                 </div>
 
                 <div className="h-3 overflow-hidden rounded-full bg-gray-200">
 
                   <div
                     className={
-                      result.risk_analysis.risk_level === "HIGH"
+                      result.risk_analysis?.risk_level === "HIGH"
                         ? "h-full bg-red-500"
-                        : result.risk_analysis.risk_level === "MEDIUM"
+                        : result.risk_analysis?.risk_level === "MEDIUM"
                           ? "h-full bg-yellow-500"
                           : "h-full bg-green-500"
                     }
                     style={{
-                      width: `${result.risk_analysis.risk_score}%`,
+                      width: `${result.risk_analysis?.risk_score}%`,
                     }}
                   />
 
                 </div>
 
               </div>
-              {result.risk_analysis.detected_keywords?.length > 0 && (
+              {result.risk_analysis?.detected_keywords?.length > 0 && (
                 <div className="mt-4">
                   <h3 className="mb-2 font-semibold">
                     감지된 위험 키워드
                   </h3>
 
                   <div className="flex flex-wrap gap-2">
-                    {result.risk_analysis.detected_keywords.map((keyword) => (
+                    {result.risk_analysis?.detected_keywords?.map((keyword) => (
                       <span
                         key={keyword}
                         className="rounded-full bg-orange-100 px-3 py-1 text-sm font-semibold text-orange-700"
@@ -219,7 +297,7 @@ export default function HomePage() {
 
                 <div className="flex flex-wrap gap-2">
 
-                  {result.risk_analysis.risky_files.map((file) => (
+                  {result.risk_analysis?.risky_files?.map((file) => (
                     <span
                       key={file}
                       className="rounded-lg bg-gray-100 px-3 py-1 text-sm"
@@ -242,7 +320,7 @@ export default function HomePage() {
                 </h2>
 
                 <span className="rounded-full bg-white px-4 py-1 text-sm font-bold">
-                  {result.complexity_analysis.complexity_level}
+                  {result.complexity_analysis?.complexity_level}
                 </span>
 
               </div>
@@ -254,7 +332,7 @@ export default function HomePage() {
                     복잡도 점수
                   </p>
                   <p className="mt-2 text-2xl font-bold">
-                    {result.complexity_analysis.complexity_score}
+                    {result.complexity_analysis?.complexity_score}
                   </p>
                 </div>
 
@@ -272,7 +350,7 @@ export default function HomePage() {
                     삭제 된 코드
                   </p>
                   <p className="mt-2 text-2xl font-bold text-red-600">
-                    -{result.complexity_analysis.total_deletions}
+                    -{result.complexity_analysis?.total_deletions}
                   </p>
                 </div>
 
@@ -287,17 +365,22 @@ export default function HomePage() {
               <p className="mb-3">
                 겹치는 열린 PR 수:{" "}
                 <span className="font-bold">
-                  {result.conflict_analysis.conflict_count}
+                  {result.conflict_analysis?.conflict_count}
                 </span>
               </p>
 
-              {result.conflict_analysis.conflict_count === 0 ? (
+              {result.repository === "LOCAL_DIFF" ? (
+                <p className="text-gray-600">
+                  로컬 Diff 분석 모드에서는 열린 PR 비교를 수행하지 않습니다.
+                  PR 생성 전 변경 파일과 위험 키워드를 기준으로 사전 위험도를 분석합니다.
+                </p>
+              ) : result.conflict_analysis?.conflict_count === 0 ? (
                 <p className="text-gray-600">
                   현재 열린 PR 기준으로 변경 파일이 겹치는 항목은 없습니다.
                 </p>
               ) : (
                 <div className="space-y-3">
-                  {result.conflict_analysis.conflict_prs.map((pr) => (
+                  {result.conflict_analysis?.conflict_prs?.map((pr) => (
                     <div
                       key={pr.pr_number}
                       className="rounded-lg border bg-gray-50 p-4"
@@ -311,7 +394,7 @@ export default function HomePage() {
                       </p>
 
                       <ul className="mt-1 list-disc pl-5">
-                        {pr.overlapping_files.map((file) => (
+                        {pr.overlapping_files?.map((file) => (
                           <li key={file}>
                             {file}
                           </li>
@@ -338,7 +421,7 @@ export default function HomePage() {
 
                 <div className="prose max-w-none text-black">
                   <ReactMarkdown>
-                    {result.llm_review.summary}
+                    {result.llm_review?.summary}
                   </ReactMarkdown>
                 </div>
 
@@ -350,7 +433,7 @@ export default function HomePage() {
                   </h3>
 
                   <div className="space-y-4">
-                    {result.llm_review.issues.map((issue, index) => (
+                    {result.llm_review?.issues?.map((issue, index) => (
                       <div
                         key={index}
                         className="rounded-xl border bg-white p-4"
@@ -369,7 +452,7 @@ export default function HomePage() {
                   </h3>
 
                   <div className="space-y-4">
-                    {result.llm_review.suggestions.map((suggestion, index) => (
+                    {result.llm_review?.suggestions?.map((suggestion, index) => (
                       <div
                         key={index}
                         className="rounded-xl border bg-white p-4"

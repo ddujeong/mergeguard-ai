@@ -1,6 +1,8 @@
 # MergeGuard AI
 
-GitHub PR의 코드 변경 사항과 협업 충돌 위험을 분석하여 merge 안정성을 높이는 AI 기반 PR 리뷰 시스템입니다.
+GitHub PR 및 로컬 diff의 코드 변경 사항을 분석하여
+협업 충돌 위험과 merge 안정성을 사전에 점검하는
+AI 기반 협업 위험 분석 시스템입니다.
 
 ---
 
@@ -49,6 +51,11 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 협업 시 주의사항 안내
 - Merge 전 체크 포인트 제공
 
+### 6. 사전 위험 분석
+- 로컬 git diff 기반 분석 지원
+- PR 생성 전 위험도 분석
+- Merge 이전 협업 위험 사전 탐지
+
 ---
 ## 현재 진행 상황
 
@@ -69,6 +76,7 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] AI Merge Guide 생성
 - [x] 협업 위험 Alert UI 추가
 - [x] Diff Preview Dashboard 구현
+- [x] 로컬 git diff 기반 사전 위험 분석 기능 추가
 
 ---
 
@@ -93,13 +101,15 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 변경 파일 기반 Diff Preview Dashboard 제공
 - 협업 위험 Alert 메시지 제공
 - AI Merge 전략 생성
+- 로컬 git diff 기반 사전 위험 분석 지원
+- PR 생성 전 Merge 위험도 분석 기능 제공
 
 ---
 
 ## 시스템 흐름
 
-GitHub PR URL 입력
-→ GitHub API 기반 PR 및 Diff 수집
+GitHub PR URL 또는 로컬 git diff 입력
+→ GitHub API 및 diff parser 기반 변경 사항 수집
 → 위험 파일 및 변경 규모 분석
 → 협업 위험도 계산
 → 열린 PR 충돌 여부 분석
@@ -114,7 +124,8 @@ GitHub PR URL 입력
 기존 코드 리뷰 시스템은 코드 품질 중심으로 동작하며,
 협업 과정에서 발생하는 충돌 위험이나 브랜치 최신화 문제를 충분히 분석하지 못한다.
 
-MergeGuard AI는 GitHub PR의 변경 사항과 협업 상태를 함께 분석하여:
+MergeGuard AI는 GitHub PR 및 로컬 diff 기반 변경 사항과
+협업 상태를 함께 분석하여:
 
 - 최신 브랜치 미반영 감지
 - 충돌 가능 파일 분석
@@ -140,6 +151,9 @@ MergeGuard AI는 GitHub PR의 변경 사항과 협업 상태를 함께 분석하
 
 MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하고,
 안전한 Merge를 지원하기 위해 개발되었다.
+
+특히 PR 생성 이후의 사후 리뷰가 아닌,
+개발 단계에서 협업 위험을 사전에 예방하는 방향을 목표로 하였다.
 
 ## 테스트 시나리오
 
