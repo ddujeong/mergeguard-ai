@@ -8,6 +8,7 @@ from app.services.complexity_analyzer import analyze_complexity
 from app.schemas.diff_request import DiffAnalyzeRequest
 from app.services.diff_parser import parse_diff_text
 from app.services.merge_strategy_service import generate_merge_strategy
+from app.services.ast_analyzer import analyze_changed_structure
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -32,9 +33,12 @@ def analyze_pr(payload: dict):
         conflict_result
     )
     complexity_result = analyze_complexity(
-    pr_info,
-    risk_result
-)
+        pr_info,
+        risk_result
+    )
+    ast_result = analyze_changed_structure(
+        pr_info["files"]
+    )
     return {
         "success": True,
         "data": {
@@ -43,7 +47,8 @@ def analyze_pr(payload: dict):
             "conflict_analysis": conflict_result,
             "llm_review": llm_review,
             "merge_guide": merge_guide,
-            "complexity_analysis": complexity_result
+            "complexity_analysis": complexity_result,
+            "ast_analysis": ast_result
         }
     }
 @router.post("/analyze-diff")
@@ -65,7 +70,8 @@ def analyze_diff(request: DiffAnalyzeRequest):
         pr_info,
         risk_result
     )
-
+    ast_result = analyze_changed_structure(files)
+    
     llm_review = generate_code_review(
         pr_info,
         risk_result
@@ -85,6 +91,7 @@ def analyze_diff(request: DiffAnalyzeRequest):
             **pr_info,
             "risk_analysis": risk_result,
             "complexity_analysis": complexity_result,
+            "ast_analysis": ast_result,
             "llm_review": llm_review,
             "merge_guide": merge_guide,
             "conflict_analysis": {

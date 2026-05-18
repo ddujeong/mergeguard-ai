@@ -383,6 +383,78 @@ export default function HomePage() {
               </div>
 
             </div>
+            {result.ast_analysis && (
+              <section className="rounded-2xl border bg-white p-5 shadow-sm">
+
+                <div className="mb-4 flex items-center justify-between">
+                  <h2 className="text-xl font-bold">
+                    코드 구조 분석
+                  </h2>
+
+                  <span className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">
+                    AST
+                  </span>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+
+                  <div className="rounded-xl border bg-gray-50 p-4">
+                    <p className="mb-3 text-sm font-semibold text-gray-500">
+                      변경 클래스
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+
+                      {result.ast_analysis.classes?.length > 0 ? (
+                        result.ast_analysis.classes.map(
+                          (item, index) => (
+                            <span
+                              key={index}
+                              className="rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700"
+                            >
+                              {item}
+                            </span>
+                          )
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-400">
+                          감지된 클래스 없음
+                        </p>
+                      )}
+
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border bg-gray-50 p-4">
+                    <p className="mb-3 text-sm font-semibold text-gray-500">
+                      변경 메서드
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+
+                      {result.ast_analysis.methods?.length > 0 ? (
+                        result.ast_analysis.methods.map(
+                          (item, index) => (
+                            <span
+                              key={index}
+                              className="rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700"
+                            >
+                              {item}()
+                            </span>
+                          )
+                        )
+                      ) : (
+                        <p className="text-sm text-gray-400">
+                          감지된 메서드 없음
+                        </p>
+                      )}
+
+                    </div>
+                  </div>
+
+                </div>
+              </section>
+            )}
             <div className="rounded-lg border bg-white p-5 text-black">
               <h2 className="mb-3 text-xl font-bold">
                 협업 충돌 분석

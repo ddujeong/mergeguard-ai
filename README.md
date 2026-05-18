@@ -29,6 +29,9 @@ MergeGuard AI는 GitHub PR 및 로컬 diff 기반 변경 사항과
 - Gemini 3 Flash Preview
 - Gemini 3.1 Flash Lite (Fallback)
 
+### Static Analysis
+- Tree-sitter
+
 ## 인증 방식
 
 GitHub API Rate Limit 문제를 해결하기 위해
@@ -56,22 +59,21 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Issues / Suggestions 구조화
 - Markdown 렌더링 지원
 
-### 5. AI Merge Guide
-- 위험도 기반 Merge 전략 제안
-- 협업 시 주의사항 안내
-- Merge 전 체크 포인트 제공
-
-### 6. 사전 위험 분석
-- 로컬 git diff 및 patch 파일 기반 사전 위험 분석 지원
-- PR 생성 전 위험도 분석
-- Merge 이전 협업 위험 사전 탐지
-- 로컬 git diff 및 patch(.patch/.diff) 파일 기반 사전 위험 분석 지원
-
-### 7. AI Merge Strategy
+### 5. AI Merge Strategy
 - 위험도 기반 Merge 전략 추천
 - Rebase 필요 여부 판단
 - 수동 리뷰 필요 여부 분석
 - 협업 우선순위 및 체크 포인트 제공
+
+### 6. 사전 위험 분석
+- PR 생성 전 위험도 분석
+- Merge 이전 협업 위험 사전 탐지
+- 로컬 git diff 및 patch(.patch/.diff) 파일 기반 사전 위험 분석 지원
+
+### 7. AST 기반 코드 구조 분석
+- Tree-sitter 기반 Java AST 분석
+- 변경 클래스 및 메서드 추출
+- 함수 단위 영향 범위 분석
 
 ---
 ## 현재 진행 상황
@@ -123,6 +125,8 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 위험도 기반 Merge 전략 추천
 - Rebase 필요 여부 자동 분석
 - AUTH/DB 변경 기반 협업 우선순위 분석
+- Tree-sitter 기반 AST 구조 분석
+- 변경 클래스 및 메서드 단위 영향 범위 추출
 
 ---
 
@@ -130,7 +134,7 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 
 GitHub PR URL 또는 로컬 diff(.patch) 파일 입력
 → GitHub API 및 diff parser 기반 변경 사항 수집
-→ 위험 파일 및 변경 규모 분석
+→ 위험 파일 / AST 구조 / 변경 규모 분석
 → 협업 위험도 계산
 → 열린 PR 충돌 여부 분석
 → Gemini 기반 AI 코드 리뷰 생성
@@ -186,6 +190,8 @@ MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하
 - 공통 변경 파일
 - 위험 키워드 기반 영향 범위
 - Merge 이전 사전 위험 분석
+- Tree-sitter 기반 AST 구조 분석을 통한
+  클래스 및 메서드 단위 영향 범위 분석
 
 등 협업 관점의 위험 요소를 함께 분석한다.
 
