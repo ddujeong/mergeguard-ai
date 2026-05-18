@@ -547,8 +547,8 @@ export default function HomePage() {
                         </span>
 
                         <span className="font-semibold text-emerald-600">
-                          {relation.object_name
-                            ? `${relation.object_name}.${relation.callee}()`
+                          {relation.object_class
+                            ? `${relation.object_class}.${relation.callee}()`
                             : `${relation.callee}()`}
                         </span>
 

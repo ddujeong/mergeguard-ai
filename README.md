@@ -147,6 +147,8 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Impact Tree 기반 호출 흐름 시각화
 - 보안 민감 메서드 자동 탐지
 - AST 기반 추가 위험 점수 반영
+- 클래스 기반 메서드 호출 흐름 분석 지원
+- 객체 타입 추론 기반 Impact Tree 분석
 
 ---
 

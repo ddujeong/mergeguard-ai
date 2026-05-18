@@ -21,13 +21,42 @@ def extract_java_structure(code: str):
 
     call_relations = []
     current_class = None
+    variable_types = {}
 
     stack = [root]
 
     while stack:
 
         node = stack.pop()
+        if node.type == "local_variable_declaration":
 
+            type_node = node.child_by_field_name("type")
+
+            declarator_node = None
+
+            for child in node.children:
+
+                if child.type == "variable_declarator":
+                    declarator_node = child
+                    break
+
+            if type_node and declarator_node:
+
+                variable_name_node = (
+                    declarator_node.child_by_field_name("name")
+                )
+
+                if variable_name_node:
+
+                    variable_name = (
+                        variable_name_node.text.decode("utf-8")
+                    )
+
+                    variable_type = (
+                        type_node.text.decode("utf-8")
+                    )
+
+                    variable_types[variable_name] = variable_type
         if node.type == "class_declaration":
             
             name_node = node.child_by_field_name("name")
@@ -77,11 +106,14 @@ def extract_java_structure(code: str):
                                 )
 
                                 object_name = None
+                                
+                                object_class = None
 
                                 if object_node:
                                     object_name = (
                                         object_node.text.decode("utf-8")
                                     )
+                                    object_class = variable_types.get(object_name)
 
                                 method_calls.append(called_method)
 
@@ -89,7 +121,8 @@ def extract_java_structure(code: str):
                                     "class_name": current_class,
                                     "caller": method_name,
                                     "callee": called_method,
-                                    "object_name": object_name
+                                    "object_name": object_name,
+                                    "object_class": object_class
                                 })
 
                         body_stack.extend(
