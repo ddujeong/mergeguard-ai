@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { analyzeDiffApi, analyzePrApi } from "@/api/reviewApi";
 
@@ -24,9 +25,9 @@ export default function HomePage() {
   const [prUrl, setPrUrl] = useState("");
 
   const [result, setResult] = useState(null);
-
+  const [autoAnalyzeError, setAutoAnalyzeError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const searchParams = useSearchParams();
   const [mode, setMode] = useState("pr");
   const [diffText, setDiffText] = useState("");
 
@@ -58,6 +59,7 @@ export default function HomePage() {
     }, {}) || {};
   const handleAnalyze = async () => {
     try {
+      setAutoAnalyzeError("");
       setLoading(true);
       setResult(null);
 
@@ -70,6 +72,43 @@ export default function HomePage() {
       setLoading(false);
     }
   };
+  useEffect(() => {
+
+    const urlPr = searchParams.get("prUrl");
+
+    if (!urlPr || result) return;
+
+    setMode("pr");
+    setPrUrl(urlPr);
+
+    const autoAnalyze = async () => {
+
+      try {
+
+        setLoading(true);
+
+        const response = await analyzePrApi(urlPr);
+
+        setResult(response);
+
+      } catch (error) {
+
+        console.error(error);
+
+        setAutoAnalyzeError(
+          "자동 분석에 실패했습니다."
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+    };
+
+    autoAnalyze();
+
+  }, [searchParams, result]);
   const handleAnalyzeDiff = async () => {
     try {
 
@@ -104,8 +143,13 @@ export default function HomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 p-10 text-black">
 
+    <main className="min-h-screen bg-gray-100 px-6 p-10 text-black">
+      {autoAnalyzeError && (
+        <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+          {autoAnalyzeError}
+        </div>
+      )}
       <div className="w-full rounded-xl bg-white p-8 shadow">
 
         <h1 className="mb-6 text-3xl font-bold">
