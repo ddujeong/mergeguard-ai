@@ -18,16 +18,26 @@ def index_repository(
         repo
     )
 
-    repository_entity = Repository(
-        owner=owner,
-        name=repo
-    )
+    repository_entity = db.query(
+        Repository
+    ).filter(
+        Repository.owner == owner,
+        Repository.name == repo
+    ).first()
 
-    db.add(repository_entity)
 
-    db.commit()
+    if not repository_entity:
 
-    db.refresh(repository_entity)
+        repository_entity = Repository(
+            owner=owner,
+            name=repo
+        )
+
+        db.add(repository_entity)
+
+        db.commit()
+
+        db.refresh(repository_entity)
 
     indexed_files = []
 
@@ -37,18 +47,53 @@ def index_repository(
             file["content"]
         )
 
-        file_index = RepoFileIndex(
-            repository_id=repository_entity.id,
-            path=file["path"],
-            content_hash=file_hash,
-            language="java"
-        )
+        existing_file = db.query(
+            RepoFileIndex
+        ).filter(
+            RepoFileIndex.repository_id == repository_entity.id,
+            RepoFileIndex.path == file["path"]
+        ).first()
 
-        db.add(file_index)
+        if existing_file:
+
+            if existing_file.content_hash == file_hash:
+
+                print(f"skip : {file['path']}")
+
+                indexed_files.append({
+                    "path": file["path"],
+                    "hash": file_hash,
+                    "status": "SKIPPED",
+                    "preview": file["content"][:200]
+                })
+
+                continue
+
+            existing_file.content_hash = file_hash
+
+            status = "UPDATED"
+
+            print(f"updated : {file['path']}")
+
+        else:
+
+            file_index = RepoFileIndex(
+                repository_id=repository_entity.id,
+                path=file["path"],
+                content_hash=file_hash,
+                language="java"
+            )
+
+            db.add(file_index)
+
+            status = "INSERTED"
+
+            print(f"inserted : {file['path']}")
 
         indexed_files.append({
             "path": file["path"],
             "hash": file_hash,
+            "status": status,
             "preview": file["content"][:200]
         })
 
