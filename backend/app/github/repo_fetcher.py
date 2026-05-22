@@ -24,6 +24,27 @@ def fetch_repo_tree(owner: str, repo: str):
     for item in tree.tree:
 
         if item.path.endswith(".java"):
-            java_files.append(item.path)
+
+            try:
+
+                contents = repository.get_contents(
+                    item.path
+                )
+
+                content = contents.decoded_content.decode(
+                    "utf-8",
+                    errors="ignore"
+                )
+
+                java_files.append({
+                    "path": item.path,
+                    "content": content
+                })
+
+            except Exception as e:
+
+                print(
+                    f"failed to fetch : {item.path} / {e}"
+                )
 
     return java_files

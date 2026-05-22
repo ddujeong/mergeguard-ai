@@ -14,5 +14,11 @@ def index_repository(owner: str, repo: str):
         "owner": owner,
         "repo": repo,
         "file_count": len(java_files),
-        "files": java_files[:10]
+        "files": [
+            {
+                "path": file["path"],
+                "preview": file["content"][:200]
+            }
+            for file in java_files[:5]
+        ]
     }
