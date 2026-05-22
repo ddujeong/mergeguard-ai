@@ -17,6 +17,10 @@ from app.services.impact_chain_analyzer import (
 from app.services.discord_service import send_discord_alert
 from app.indexing.repo_indexer import index_repository
 from app.schemas.repo_index_request import RepoIndexRequest
+from sqlalchemy.orm import Session
+from fastapi import Depends
+
+from app.repository.db import get_db
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -181,9 +185,13 @@ def github_webhook(payload: dict):
 
 
 @router.post("/repositories/index")
-def index_repo(request: RepoIndexRequest):
+def index_repo(
+        request: RepoIndexRequest,
+        db: Session = Depends(get_db)
+):
 
     return index_repository(
         request.owner,
-        request.repo
+        request.repo,
+        db
     )
