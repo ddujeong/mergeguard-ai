@@ -1,4 +1,5 @@
 from app.github.repo_fetcher import fetch_repo_tree
+from app.indexing.hash_service import calculate_file_hash
 
 
 def index_repository(owner: str, repo: str):
@@ -8,17 +9,23 @@ def index_repository(owner: str, repo: str):
         repo
     )
 
-    print(f"indexed files : {len(java_files)}")
+    indexed_files = []
+
+    for file in java_files:
+
+        file_hash = calculate_file_hash(
+            file["content"]
+        )
+
+        indexed_files.append({
+            "path": file["path"],
+            "hash": file_hash,
+            "preview": file["content"][:200]
+        })
 
     return {
         "owner": owner,
         "repo": repo,
         "file_count": len(java_files),
-        "files": [
-            {
-                "path": file["path"],
-                "preview": file["content"][:200]
-            }
-            for file in java_files[:5]
-        ]
+        "files": indexed_files[:5]
     }
