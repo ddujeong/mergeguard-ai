@@ -39,3 +39,23 @@ class RepoFileIndex(Base):
 
     indexed_at = Column(DateTime(timezone=True),
                         server_default=func.now())
+    
+class CodeSymbol(Base):
+
+    __tablename__ = "code_symbols"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    repository_id = Column(Integer, nullable=False)
+
+    file_path = Column(String, nullable=False)
+
+    symbol_type = Column(String)
+
+    class_name = Column(String)
+
+    method_name = Column(String)
+
+    annotation = Column(String)
+
+    interface = Column(String)

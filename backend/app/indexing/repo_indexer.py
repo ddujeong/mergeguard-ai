@@ -5,7 +5,8 @@ from app.indexing.hash_service import calculate_file_hash
 
 from app.repository.models import Repository
 from app.repository.models import RepoFileIndex
-
+from app.indexing.symbol_extractor import extract_symbols
+from app.repository.models import CodeSymbol
 
 def index_repository(
         owner: str,
@@ -44,6 +45,9 @@ def index_repository(
     for file in java_files:
 
         file_hash = calculate_file_hash(
+            file["content"]
+        )
+        symbols = extract_symbols(
             file["content"]
         )
 
@@ -90,10 +94,49 @@ def index_repository(
 
             print(f"inserted : {file['path']}")
 
+        # 기존 symbol 삭제 후 재저장
+        db.query(CodeSymbol).filter(
+            CodeSymbol.repository_id == repository_entity.id,
+            CodeSymbol.file_path == file["path"]
+        ).delete()
+
+        for class_name in symbols["classes"]:
+            db.add(CodeSymbol(
+                repository_id=repository_entity.id,
+                file_path=file["path"],
+                symbol_type="CLASS",
+                class_name=class_name
+            ))
+
+        for method_name in symbols["methods"]:
+            db.add(CodeSymbol(
+                repository_id=repository_entity.id,
+                file_path=file["path"],
+                symbol_type="METHOD",
+                method_name=method_name
+            ))
+
+        for annotation in symbols["annotations"]:
+            db.add(CodeSymbol(
+                repository_id=repository_entity.id,
+                file_path=file["path"],
+                symbol_type="ANNOTATION",
+                annotation=annotation
+            ))
+
+        for interface in symbols["interfaces"]:
+            db.add(CodeSymbol(
+                repository_id=repository_entity.id,
+                file_path=file["path"],
+                symbol_type="INTERFACE",
+                interface=interface
+            ))
+        
         indexed_files.append({
             "path": file["path"],
             "hash": file_hash,
             "status": status,
+            "symbols": symbols,
             "preview": file["content"][:200]
         })
 
