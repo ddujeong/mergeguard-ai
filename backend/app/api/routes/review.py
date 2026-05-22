@@ -15,6 +15,8 @@ from app.services.impact_chain_analyzer import (
     calculate_ripple_effect
 )
 from app.services.discord_service import send_discord_alert
+from app.indexing.repo_indexer import index_repository
+from app.schemas.repo_index_request import RepoIndexRequest
 
 router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
@@ -176,3 +178,12 @@ def github_webhook(payload: dict):
     return analyze_pr({
         "pr_url": pr_url
     })
+
+
+@router.post("/repositories/index")
+def index_repo(request: RepoIndexRequest):
+
+    return index_repository(
+        request.owner,
+        request.repo
+    )
