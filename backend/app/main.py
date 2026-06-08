@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.review import router as review_router
+from app.api.routes.repository import (
+    router as repository_router
+)
 from app.repository.db import Base
 from app.repository.db import engine
 
@@ -20,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(review_router)
+app.include_router(repository_router)
 
 
 @app.get("/health")
