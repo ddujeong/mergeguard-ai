@@ -16,9 +16,13 @@ from app.services.impact_chain_analyzer import (
 )
 from app.services.discord_service import send_discord_alert
 from app.indexing.repo_indexer import index_repository
+from app.analysis.repo_context_builder import build_repo_context
+from app.analysis.pr_context_builder import build_pr_context
+from app.services.llm_review_service import generate_architecture_review
 from app.schemas.repo_index_request import RepoIndexRequest
 from sqlalchemy.orm import Session
 from fastapi import Depends
+from app.repository.models import Repository
 
 from app.repository.db import get_db
 
@@ -26,7 +30,7 @@ router = APIRouter(prefix="/api/v1/reviews", tags=["reviews"])
 
 
 @router.post("/analyze")
-def analyze_pr(payload: dict):
+def analyze_pr(payload: dict, db: Session = Depends(get_db)):
 
     pr_url = payload.get("pr_url")
 
@@ -62,6 +66,33 @@ def analyze_pr(payload: dict):
     )
     llm_review = generate_code_review(pr_info, risk_result)
     
+    repo_name = pr_info["repository"]
+    
+    repository_entity = db.query(
+        Repository
+    ).filter(
+        Repository.name == repo_name
+    ).first()
+    
+    repo_context = {}
+
+    if repository_entity:
+
+        repo_context = build_repo_context(
+            repository_id=repository_entity.id,
+            db=db
+        )
+
+    pr_context = build_pr_context(
+        pr_info["files"]
+    )
+
+    architecture_review = (
+        generate_architecture_review(
+            repo_context,
+            pr_context
+        )
+    )
     merge_guide = generate_merge_strategy(
         risk_result,
         conflict_result
@@ -72,6 +103,7 @@ def analyze_pr(payload: dict):
         "conflict_analysis": conflict_result,
         "llm_review": llm_review,
         "merge_guide": merge_guide,
+        "architecture_review": architecture_review,
         "complexity_analysis": complexity_result,
         "ast_analysis": ast_result,
         "ast_risk_analysis": ast_risk,
@@ -193,5 +225,16 @@ def index_repo(
     return index_repository(
         request.owner,
         request.repo,
+        db
+    )
+    
+@router.get("/repositories/{repository_id}/context")
+def get_repo_context(
+        repository_id: int,
+        db: Session = Depends(get_db)
+):
+
+    return build_repo_context(
+        repository_id,
         db
     )

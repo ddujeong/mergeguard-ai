@@ -3,6 +3,7 @@ import re
 import google.generativeai as genai
 
 from app.core.config import GEMINI_API_KEY
+from app.llm.architecture_review_prompt import build_architecture_review_prompt
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -89,3 +90,22 @@ PR Diff:
         }
 
     return parsed
+
+def generate_architecture_review(
+        repo_context,
+        pr_context
+):
+
+    prompt = build_architecture_review_prompt(
+        repo_context,
+        pr_context
+    )
+
+    try:
+        response = primary_model.generate_content(prompt)
+
+    except Exception:
+        print("architecture review primary 호출 실패 → fallback 사용")
+        response = fallback_model.generate_content(prompt)
+
+    return response.text

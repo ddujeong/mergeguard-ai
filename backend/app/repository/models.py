@@ -59,3 +59,23 @@ class CodeSymbol(Base):
     annotation = Column(String)
 
     interface = Column(String)
+
+class SymbolRelation(Base):
+
+    __tablename__ = "symbol_relations"
+
+    id = Column(Integer, primary_key=True)
+
+    repository_id = Column(Integer)
+
+    caller_class = Column(String)
+
+    caller_method = Column(String)
+
+    callee_class = Column(String)
+
+    callee_method = Column(String)
+
+    relation_type = Column(String)
+    
+    file_path = Column(String)

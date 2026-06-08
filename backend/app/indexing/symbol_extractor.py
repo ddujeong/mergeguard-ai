@@ -9,6 +9,8 @@ ANNOTATION_PATTERN = r"@(\w+)"
 
 INTERFACE_PATTERN = r"implements\s+(\w+)"
 
+METHOD_CALL_PATTERN = r"(\w+)\.(\w+)\("
+
 def extract_symbols(content: str):
 
     classes = re.findall(
@@ -31,9 +33,14 @@ def extract_symbols(content: str):
         content
     )
 
+    method_calls = re.findall(
+        METHOD_CALL_PATTERN,
+        content
+    )
     return {
         "classes": classes,
         "methods": [m[1] for m in methods],
         "annotations": annotations,
-        "interfaces": interfaces
+        "interfaces": interfaces,
+        "method_calls": method_calls
     }

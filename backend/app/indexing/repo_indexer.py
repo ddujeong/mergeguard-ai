@@ -7,6 +7,7 @@ from app.repository.models import Repository
 from app.repository.models import RepoFileIndex
 from app.indexing.symbol_extractor import extract_symbols
 from app.repository.models import CodeSymbol
+from app.repository.models import SymbolRelation
 
 def index_repository(
         owner: str,
@@ -131,13 +132,29 @@ def index_repository(
                 symbol_type="INTERFACE",
                 interface=interface
             ))
+        db.query(SymbolRelation).filter(
+            SymbolRelation.repository_id == repository_entity.id,
+            SymbolRelation.file_path == file["path"]
+        ).delete()
+        
+        for object_name, method_name in symbols["method_calls"]:
+
+            db.add(SymbolRelation(
+                repository_id=repository_entity.id,
+                file_path=file["path"],
+                caller_class=file["path"].split("/")[-1].replace(".java", ""),
+                caller_method="UNKNOWN",
+                callee_class=object_name,
+                callee_method=method_name,
+                relation_type="METHOD_CALL"
+            ))
         
         indexed_files.append({
             "path": file["path"],
             "hash": file_hash,
             "status": status,
             "symbols": symbols,
-            "preview": file["content"][:200]
+            "preview": file["content"][:200],
         })
 
     db.commit()
@@ -146,5 +163,5 @@ def index_repository(
         "owner": owner,
         "repo": repo,
         "file_count": len(java_files),
-        "files": indexed_files[:5]
+        "files": indexed_files[:5],
     }

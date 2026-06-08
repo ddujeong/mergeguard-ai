@@ -892,6 +892,29 @@ function HomePageContent() {
                       </div>
                     ))}
                   </div>
+                  {result.architecture_review && (
+                    <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-6 text-black shadow-sm">
+
+                      <div className="mb-4 flex items-center gap-2">
+
+                        <div className="h-3 w-3 rounded-full bg-indigo-600" />
+
+                        <h2 className="text-xl font-bold text-indigo-700">
+                          Repository Context 기반 아키텍처 리뷰
+                        </h2>
+
+                      </div>
+
+                      <div className="prose prose-sm max-w-none rounded-xl border bg-white p-5 text-black">
+
+                        <ReactMarkdown>
+                          {result.architecture_review}
+                        </ReactMarkdown>
+
+                      </div>
+
+                    </div>
+                  )}
                 </div>
               </div>
 
