@@ -8,6 +8,9 @@ from app.repository.models import RepoFileIndex
 from app.indexing.symbol_extractor import extract_symbols
 from app.repository.models import CodeSymbol
 from app.repository.models import SymbolRelation
+from app.indexing.dependency_extractor import (
+    extract_dependencies
+)
 
 def index_repository(
         owner: str,
@@ -51,7 +54,11 @@ def index_repository(
         symbols = extract_symbols(
             file["content"]
         )
-
+        dependency_map = (
+            extract_dependencies(
+                file["content"]
+            )
+        )
         existing_file = db.query(
             RepoFileIndex
         ).filter(
@@ -144,7 +151,10 @@ def index_repository(
                 file_path=file["path"],
                 caller_class=file["path"].split("/")[-1].replace(".java", ""),
                 caller_method="UNKNOWN",
-                callee_class=object_name,
+                callee_class=dependency_map.get(
+                    object_name,
+                    object_name
+                ),
                 callee_method=method_name,
                 relation_type="METHOD_CALL"
             ))
