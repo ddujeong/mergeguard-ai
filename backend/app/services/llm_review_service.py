@@ -93,12 +93,14 @@ PR Diff:
 
 def generate_architecture_review(
         repo_context,
-        pr_context
+        pr_context,
+        ripple_context
 ):
 
     prompt = build_architecture_review_prompt(
         repo_context,
-        pr_context
+        pr_context,
+        ripple_context
     )
 
     try:

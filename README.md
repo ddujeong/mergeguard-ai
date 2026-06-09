@@ -108,6 +108,44 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - Discord 실시간 분석 알림 전송
 - Dashboard 바로가기 자동 연동
 
+### 10. Repository Indexing
+
+- GitHub Repository 전체 Java 소스 수집
+- 파일 해시 기반 증분 인덱싱
+- 클래스 / 메서드 / 어노테이션 / 인터페이스 추출
+- Symbol Graph 구축
+- Repository 단위 코드 구조 저장
+
+### 11. Symbol Graph Analysis
+
+- 클래스 간 의존 관계 추출
+- 객체 타입 추론 기반 호출 대상 분석
+- SymbolRelation 저장
+- Caller → Callee 관계 추적
+- Repository 단위 호출 그래프 구축
+
+### 12. Repository Context Analysis
+
+- Repository 전체 클래스 구조 분석
+- 서비스 계층 의존 관계 수집
+- PR 변경 사항과 Repository Context 비교
+- 프로젝트 구조 기반 리뷰 생성
+
+### 13. Architecture Review
+
+- Repository Context 기반 구조 분석
+- PR 변경 클래스 분석
+- Symbol Graph 기반 영향 범위 추적
+- Ripple Effect 기반 구조 리뷰 생성
+- Gemini 기반 아키텍처 리뷰 생성
+
+### 14. Repository Ripple Effect
+
+- Repository 전체 호출 그래프 기반 영향 범위 분석
+- 변경 클래스 → 호출 클래스 전파 추적
+- AuthService → AuthController 형태 영향 체인 생성
+- SymbolRelation 기반 실제 의존성 분석
+
 ---
 ## 현재 진행 상황
 
@@ -138,6 +176,11 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - [x] 전체 Java 소스 기반 AST 분석
 - [x] 클래스 간 메서드 호출 흐름 분석
 - [x] 객체 타입 추론 기반 호출 대상 클래스 식별
+- [x] Repository 전체 Java 소스 인덱싱
+- [x] Symbol Graph 구축
+- [x] Repository Context 생성
+- [x] Repository Ripple Effect 분석
+- [x] Architecture Review 생성
 
 ---
 
@@ -180,6 +223,14 @@ Personal Access Token 기반 인증 요청을 적용하였다.
 - 클래스/메서드 단위 Call Graph 분석
 - Controller → Service → Provider 형태의 호출 체인 추적
 - Impact Tree 기반 연쇄 호출 흐름 시각화
+- Repository 전체 Java 소스 인덱싱
+- 파일 해시 기반 증분 인덱싱
+- Symbol Graph 구축
+- 클래스 간 의존 관계 저장
+- Repository Context 생성
+- Repository 기반 Architecture Review 생성
+- Repository Ripple Effect 분석
+- SymbolRelation 기반 영향 체인 추적
 
 ---
 
@@ -191,9 +242,13 @@ GitHub PR 생성
 → GitHub Webhook 이벤트 발생
 → MergeGuard AI 자동 분석
 → GitHub API 기반 PR / Diff 수집
-→ 위험 파일 / AST 구조 / 호출 체인 분석
+→ AST 구조 분석
+→ Repository Context 조회
+→ Symbol Graph 기반 영향 범위 추적
+→ Repository Ripple Effect 계산
 → 협업 위험도 계산
-→ Gemini 기반 AI 코드 리뷰 생성
+→ AI 코드 리뷰 생성
+→ Architecture Review 생성
 → Discord 실시간 알림 전송
 → Dashboard UI 출력
 
@@ -262,7 +317,12 @@ MergeGuard AI는 이러한 협업 과정의 위험 요소를 사전에 분석하
 - AST 기반 보안 민감 메서드 탐지
 - Impact Tree 기반 호출 흐름 시각화
 - 전체 Java 소스 기반 AST 분석을 통해 클래스 간 호출 흐름을 추적하고,
-  Controller → Service → Provider 형태의 연쇄 영향 범위를 시각화
+  Controller → Service → Provider 호출 체인 추적
+- Repository 전체 소스를 인덱싱하여
+  PR Diff만이 아닌 Repository 구조를 함께 분석
+- Symbol Graph 기반 영향 범위 분석
+- Repository Ripple Effect 기반 변경 클래스의 실제 전파 경로 분석
+- Repository Context + PR Context를 결합한 Architecture Review 제공
 
 등 협업 관점의 위험 요소를 함께 분석한다.
 
@@ -279,9 +339,22 @@ PR 생성 이전 단계에서도 위험도를 점검할 수 있도록 설계하�
 - Ripple Effect 기반 연쇄 영향도
 - GitHub Webhook 기반 실시간 자동 분석
 
-까지 통합적으로 분석하는 협업 중심 AI 리뷰 플랫폼을 목표로 한다.
+Repository 전체 구조를 인덱싱하여
+
+PR Diff
++
+Repository Context
++
+Symbol Graph
++
+Ripple Effect
+
+를 결합해 변경 사항의 실제 영향 범위를 분석하는
+협업 중심 AI 코드 리뷰 플랫폼을 지향한다.
 
 ## 테스트 시나리오
+
+### 1. 협업 충돌 탐지
 
 테스트용 Spring Boot 레포지토리에서 두 개의 PR을 생성하여
 동일 파일 수정으로 인한 협업 충돌 상황을 재현하였다.
@@ -294,15 +367,25 @@ PR 생성 이전 단계에서도 위험도를 점검할 수 있도록 설계하�
   - JwtTokenProvider.java
   - AuthService.java
 
-MergeGuard AI는 두 PR이 공통으로 수정한 `JwtTokenProvider.java`를 감지하고,
+MergeGuard AI는 두 PR이 공통으로 수정한
+`JwtTokenProvider.java`를 감지하고
 협업 충돌 가능성이 있는 PR로 분류하였다.
+
+---
+
+### 2. AST 호출 분석
 
 - PR #3: AST 호출 분석 테스트
   - AuthService.java
   - validateInput() 호출 추가
 
-MergeGuard AI는 `login()`에서 `validateInput()`을 호출하는 관계를 분석하고,
-보안 민감 메서드 및 메서드 단위 위험도를 함께 탐지하였다.
+MergeGuard AI는 `login()`에서
+`validateInput()`을 호출하는 관계를 분석하고,
+보안 민감 메서드 및 메서드 단위 위험도를 탐지하였다.
+
+---
+
+### 3. Call Chain 분석
 
 - PR #4: 인증 흐름 호출 체인 테스트
   - login()
@@ -312,6 +395,4 @@ MergeGuard AI는 `login()`에서 `validateInput()`을 호출하는 관계를 분
   - findUser()
 
 MergeGuard AI는 login() 메서드를 기준으로
-호출되는 메서드 체인을 분석하고,
-영향 범위 및 보안 민감 메서드를 함께 탐지하였다.
-
+호출 체인을 추적하여 영향 범위를 분석하였다.

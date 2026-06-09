@@ -33,3 +33,42 @@ def find_impacted_classes(
                 queue.append(caller)
 
     return list(impacted)
+
+def build_ripple_context(
+        repository_id,
+        changed_class,
+        db
+):
+
+    chain = [changed_class]
+
+    current = changed_class
+
+    visited = set()
+
+    while True:
+
+        relation = db.query(
+            SymbolRelation
+        ).filter(
+            SymbolRelation.repository_id == repository_id,
+            SymbolRelation.callee_class == current
+        ).first()
+
+        if not relation:
+            break
+
+        if relation.caller_class in visited:
+            break
+
+        chain.append(
+            relation.caller_class
+        )
+
+        visited.add(
+            relation.caller_class
+        )
+
+        current = relation.caller_class
+
+    return " -> ".join(chain)

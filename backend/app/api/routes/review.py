@@ -14,6 +14,10 @@ from app.services.impact_chain_analyzer import (
     build_deep_call_chains,
     calculate_ripple_effect
 )
+from app.analysis.ripple_graph_analyzer import (
+    find_impacted_classes,
+    build_ripple_context
+)
 from app.services.discord_service import send_discord_alert
 from app.indexing.repo_indexer import index_repository
 from app.analysis.repo_context_builder import build_repo_context
@@ -66,14 +70,18 @@ def analyze_pr(payload: dict, db: Session = Depends(get_db)):
     )
     llm_review = generate_code_review(pr_info, risk_result)
     
-    repo_name = pr_info["repository"]
+    repo_full_name = pr_info["repository"]
+
+    owner, repo_name = repo_full_name.split("/")
     
     repository_entity = db.query(
         Repository
     ).filter(
+        Repository.owner == owner,
         Repository.name == repo_name
     ).first()
-    
+    print("REPO_NAME")
+    print(repo_name)
     repo_context = {}
 
     if repository_entity:
@@ -86,11 +94,37 @@ def analyze_pr(payload: dict, db: Session = Depends(get_db)):
     pr_context = build_pr_context(
         pr_info["files"]
     )
+    print("PR_CONTEXT:")
+    print(pr_context)
+    print("REPOSITORY:")
+    print(repository_entity)
+    ripple_context = ""
 
+    if repository_entity:
+
+        ripple_contexts = []
+
+        for class_name in pr_context["classes"]:
+
+            ripple_contexts.append(
+                build_ripple_context(
+                    repository_id=repository_entity.id,
+                    changed_class=class_name,
+                    db=db
+                )
+            )
+
+        ripple_context = "\n".join(
+            ripple_contexts
+        )
+    print("========== RIPPLE ==========")
+    print(ripple_context)
+    print("============================")
     architecture_review = (
         generate_architecture_review(
             repo_context,
-            pr_context
+            pr_context,
+            ripple_context
         )
     )
     merge_guide = generate_merge_strategy(
@@ -109,7 +143,8 @@ def analyze_pr(payload: dict, db: Session = Depends(get_db)):
         "ast_risk_analysis": ast_risk,
         "deep_impact_analysis": deep_impact_chains,
         "ripple_effect": ripple_effect,
-        "pr_url": pr_url
+        "pr_url": pr_url,
+        "repository_ripple_context": ripple_context
     }
     send_discord_alert(result_data)
     return {

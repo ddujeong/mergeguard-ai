@@ -14,7 +14,15 @@ def build_pr_context(changed_files):
         symbols = extract_symbols(
             patch
         )
+        if not symbols["classes"]:
 
+            file_name = file["filename"].split("/")[-1]
+
+            if file_name.endswith(".java"):
+
+                pr_classes.append(
+                    file_name.replace(".java", "")
+                )
         pr_classes.extend(
             symbols["classes"]
         )
